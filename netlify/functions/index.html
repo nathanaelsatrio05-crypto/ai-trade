@@ -1,0 +1,2488 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NATHANZ AI TRADE — Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep:    #060d1a;
+      --bg-card:    #0d1b2e;
+      --bg-sidebar: #05101d;
+      --accent:     #00d4ff;
+      --accent2:    #00ff9d;
+      --warn:       #ffb800;
+      --danger:     #ff4d6d;
+      --text:       #d4e8ff;
+      --muted:      #567a99;
+      --border:     rgba(0,212,255,0.15);
+      --glow:       0 0 20px rgba(0,212,255,0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 230px; background: var(--bg-sidebar);
+      display: flex; flex-direction: column;
+      padding: 28px 16px; border-right: 1px solid var(--border); flex-shrink: 0;
+    }
+    .logo {
+      font-family: 'Space Mono', monospace; font-size: 18px; color: var(--accent);
+      text-align: center; letter-spacing: 2px; margin-bottom: 36px;
+      padding-bottom: 20px; border-bottom: 1px solid var(--border);
+    }
+    .logo span { color: var(--accent2); }
+    .menu { display: flex; flex-direction: column; gap: 6px; }
+    .menu-item {
+      display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+      border-radius: 10px; cursor: pointer; transition: all 0.25s;
+      font-size: 14px; color: var(--muted); border: 1px solid transparent;
+    }
+    .menu-item:hover { background: rgba(0,212,255,0.07); color: var(--text); border-color: var(--border); }
+    .menu-item.active { background: rgba(0,212,255,0.12); color: var(--accent); border-color: rgba(0,212,255,0.3); }
+    .sidebar-footer { margin-top: auto; font-size: 11px; color: var(--muted); text-align: center; font-family: 'Space Mono', monospace; }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1; overflow-y: auto; padding: 32px 36px;
+      background:
+        radial-gradient(ellipse at 80% 10%, rgba(0,212,255,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse at 10% 90%, rgba(0,255,157,0.04) 0%, transparent 60%),
+        var(--bg-deep);
+    }
+    .page-header { margin-bottom: 28px; }
+    .page-title { font-family: 'Space Mono', monospace; font-size: 22px; color: var(--accent); letter-spacing: 1px; }
+    .page-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; box-shadow: var(--glow); margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 2px;
+      color: var(--muted); margin-bottom: 18px; font-family: 'Space Mono', monospace;
+    }
+
+    /* ── FORMS ── */
+    .form-group { margin-bottom: 16px; }
+    label {
+      display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px;
+      letter-spacing: 1px; text-transform: uppercase; font-family: 'Space Mono', monospace;
+    }
+    select, input[type="text"], input[type="email"], input[type="password"], textarea {
+      width: 100%; padding: 11px 14px; border-radius: 9px;
+      border: 1px solid var(--border); background: rgba(0,0,0,0.3);
+      color: var(--text); font-family: 'Sora', sans-serif; font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+    }
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+    }
+    textarea { resize: vertical; min-height: 90px; font-size: 12px; }
+    input[type="file"] { width: 100%; padding: 10px 0; color: var(--muted); font-size: 13px; }
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 42px; }
+    .pw-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: 16px; padding: 0; width: auto; margin: 0;
+    }
+    .pw-toggle:hover { color: var(--accent); }
+
+    /* ── BUTTONS ── */
+    button.btn-primary {
+      padding: 12px 20px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700; font-family: 'Space Mono', monospace;
+      font-size: 13px; letter-spacing: 1px; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s; width: 100%;
+    }
+    button.btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+    button.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    button.btn-danger {
+      padding: 10px 18px; border: 1px solid var(--danger); border-radius: 10px;
+      background: rgba(255,77,109,0.08); color: var(--danger);
+      font-family: 'Space Mono', monospace; font-size: 12px;
+      cursor: pointer; transition: background 0.2s; width: 100%; margin-top: 8px;
+    }
+    button.btn-danger:hover { background: rgba(255,77,109,0.18); }
+    button.btn-ghost {
+      padding: 10px 18px; border: 1px solid var(--border); border-radius: 10px;
+      background: transparent; color: var(--muted); font-family: 'Space Mono', monospace;
+      font-size: 12px; cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 8px;
+    }
+    button.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    #preview { width: 100%; margin-top: 14px; border-radius: 10px; display: none; border: 1px solid var(--border); }
+
+    /* ── LOADING ── */
+    .loading-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 20px;
+    }
+    .loader-bars { display: flex; gap: 5px; align-items: flex-end; height: 36px; }
+    .loader-bars span {
+      width: 5px; border-radius: 3px; background: var(--accent);
+      animation: barPulse 1.1s ease-in-out infinite;
+    }
+    .loader-bars span:nth-child(1) { animation-delay: 0s;    height: 14px; }
+    .loader-bars span:nth-child(2) { animation-delay: 0.15s; height: 22px; }
+    .loader-bars span:nth-child(3) { animation-delay: 0.30s; height: 34px; }
+    .loader-bars span:nth-child(4) { animation-delay: 0.45s; height: 22px; }
+    .loader-bars span:nth-child(5) { animation-delay: 0.60s; height: 14px; }
+    @keyframes barPulse {
+      0%,100% { opacity: 0.3; transform: scaleY(0.6); }
+      50%      { opacity: 1;   transform: scaleY(1); }
+    }
+    .loading-text { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); letter-spacing: 1px; }
+    .loading-sub  { font-size: 11px; color: var(--muted); }
+
+    /* ══════════════════════════════════════
+       SIGNAL CARD (like screenshot)
+    ══════════════════════════════════════ */
+    .signal-card {
+      background: linear-gradient(160deg, #0d1f35 0%, #091525 100%);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), var(--glow);
+    }
+
+    /* Header row */
+    .sc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 10px;
+    }
+
+    .sc-pair-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .sc-update-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(0,212,255,0.07);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+      width: auto;
+    }
+    .sc-update-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .sc-update-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Signal row */
+    .sc-signal-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 4px 20px 16px;
+    }
+
+    .sc-signal-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 44px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .sc-signal-text.buy  { color: #00ff9d; text-shadow: 0 0 30px rgba(0,255,157,0.5); }
+    .sc-signal-text.sell { color: #ff4d6d; text-shadow: 0 0 30px rgba(255,77,109,0.5); }
+    .sc-signal-text.wait { color: #ffb800; text-shadow: 0 0 30px rgba(255,184,0,0.5); }
+
+    .sc-pair-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(0,212,255,0.3);
+      background: rgba(0,212,255,0.08);
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+
+    /* Confidence */
+    .sc-section {
+      margin: 0 14px 12px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(0,212,255,0.1);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .sc-section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .sc-conf-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .sc-conf-track {
+      height: 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.07);
+      overflow: hidden;
+    }
+
+    .sc-conf-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 1s cubic-bezier(0.4,0,0.2,1);
+      background: linear-gradient(90deg, #00ff9d, #00d4ff, #ffb800);
+    }
+
+    /* Entry price */
+    .sc-entry-section {
+      margin: 0 14px 12px;
+      background: linear-gradient(135deg, rgba(0,255,157,0.08), rgba(0,212,255,0.04));
+      border: 1px solid rgba(0,255,157,0.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .sc-entry-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* SL / TP grid */
+    .sc-levels-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 0 14px 12px;
+    }
+
+    .sc-level-box {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(0,212,255,0.1);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .sc-level-box.sl-box {
+      border-color: rgba(255,77,109,0.2);
+      background: rgba(255,77,109,0.04);
+    }
+
+    .sc-level-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .sc-level-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .sc-level-box.sl-box .sc-level-value { color: #ff4d6d; }
+    .sc-level-box.tp1-box .sc-level-value { color: #00ff9d; }
+    .sc-level-box.tp2-box .sc-level-value { color: #00d4ff; }
+    .sc-level-box.tp3-box .sc-level-value { color: #a78bfa; }
+
+    /* Analysis */
+    .sc-analysis {
+      margin: 0 14px 12px;
+    }
+
+    .sc-analysis-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .sc-analysis-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .sc-status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .sc-status-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+    }
+
+    .sc-status-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 6px;
+    }
+
+    .sc-status-badge.active  { color: var(--accent2); }
+    .sc-status-badge.tp1hit  { color: var(--accent2); }
+    .sc-status-badge.tp2hit  { color: var(--accent); }
+    .sc-status-badge.tp3hit  { color: #a78bfa; }
+    .sc-status-badge.sl_hit  { color: var(--danger); }
+    .sc-status-badge.closed  { color: var(--muted); }
+
+    /* Patterns row */
+    .sc-patterns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0 14px 14px;
+    }
+
+    .sc-pattern-tag {
+      font-size: 10px;
+      padding: 3px 9px;
+      border-radius: 12px;
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.2);
+      color: var(--accent);
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 1px;
+    }
+
+    /* Status controls */
+    .sc-status-controls {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 0 14px 16px;
+    }
+
+    .sc-status-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+      width: auto;
+    }
+    .sc-status-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .sc-status-btn.active-btn { border-color: var(--accent2); color: var(--accent2); background: rgba(0,255,157,0.08); }
+
+    /* ── LOG ENTRIES ── */
+    .log-entry {
+      background: rgba(0,0,0,0.25); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px; margin-bottom: 10px;
+      cursor: pointer; transition: border-color 0.2s;
+    }
+    .log-entry:hover { border-color: rgba(0,212,255,0.4); }
+    .log-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; margin-bottom: 6px; }
+    .log-signal { font-size: 14px; font-weight: 600; }
+    .log-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 30px 0; }
+
+    /* ── STATUS BADGE (settings) ── */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
+      padding: 4px 10px; border-radius: 20px; font-family: 'Space Mono', monospace;
+    }
+    .status-badge.saved   { background: rgba(0,255,157,0.1); color: var(--accent2); border: 1px solid rgba(0,255,157,0.3); }
+    .status-badge.unsaved { background: rgba(255,77,109,0.1); color: var(--danger);  border: 1px solid rgba(255,77,109,0.3); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── COOKIE ── */
+    .cookie-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .cookie-del {
+      background: none; border: 1px solid var(--danger); color: var(--danger);
+      border-radius: 7px; width: 34px; height: 34px; cursor: pointer; font-size: 16px;
+      display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0;
+    }
+    .cookie-del:hover { background: rgba(255,77,109,0.15); }
+    .add-cookie-btn {
+      display: flex; align-items: center; gap: 6px; background: none;
+      border: 1px dashed var(--border); color: var(--muted); padding: 9px 14px;
+      border-radius: 9px; cursor: pointer; font-size: 13px; transition: all 0.2s;
+      width: auto; margin-top: 4px;
+    }
+    .add-cookie-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .error-box {
+      background: rgba(255,77,109,0.08); border: 1px solid rgba(255,77,109,0.3);
+      border-radius: 10px; padding: 14px; font-size: 13px;
+      color: var(--danger); margin-top: 14px; display: none;
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--bg-card); border: 1px solid var(--accent);
+      color: var(--accent); padding: 12px 20px; border-radius: 10px;
+      font-family: 'Space Mono', monospace; font-size: 13px;
+      opacity: 0; transform: translateY(12px); transition: all 0.3s;
+      pointer-events: none; box-shadow: var(--glow); z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ── LIVE PRICE TICKER ── */
+    .ticker-bar {
+      display: flex; gap: 0; overflow: hidden;
+      background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+      border-radius: 10px; margin-bottom: 20px; position: relative;
+    }
+    .ticker-inner {
+      display: flex; gap: 0; animation: tickerScroll 30s linear infinite;
+      white-space: nowrap;
+    }
+    .ticker-item {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px; border-right: 1px solid var(--border);
+      font-family: 'Space Mono', monospace; font-size: 12px;
+    }
+    .ticker-pair { color: var(--muted); }
+    .ticker-price { color: var(--text); font-weight: 700; }
+    .ticker-change { font-size: 11px; }
+    .ticker-change.up { color: var(--accent2); }
+    .ticker-change.dn { color: var(--danger); }
+    @keyframes tickerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── MARKET PAGE ── */
+    .market-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
+    .price-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px; cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+      position: relative; overflow: hidden;
+    }
+    .price-card:hover { border-color: rgba(0,212,255,0.4); transform: translateY(-2px); }
+    .price-card.bullish { border-color: rgba(0,255,157,0.25); }
+    .price-card.bearish { border-color: rgba(255,77,109,0.25); }
+    .pc-pair { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; margin-bottom: 6px; }
+    .pc-price { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .pc-change { font-size: 12px; font-family: 'Space Mono', monospace; }
+    .pc-change.up { color: var(--accent2); }
+    .pc-change.dn { color: var(--danger); }
+    .pc-sparkline { margin-top: 10px; }
+    .pc-sparkline canvas { display: block; }
+    .pc-hl { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); font-family: 'Space Mono', monospace; margin-top: 6px; }
+
+    /* ── SIGNAL CARD ADDITIONS ── */
+    .sc-live-price {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 0 14px 12px;
+      background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 14px;
+    }
+    .sc-live-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+    .sc-live-val { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: var(--accent); }
+    .sc-live-chg { font-size: 11px; font-family: 'Space Mono', monospace; }
+    .sc-live-chg.up { color: var(--accent2); }
+    .sc-live-chg.dn { color: var(--danger); }
+
+    .sc-mini-chart { margin: 0 14px 12px; border-radius: 10px; overflow: hidden; height: 60px; }
+    .sc-mini-chart canvas { display: block; width: 100% !important; }
+
+    .sc-toolbar {
+      display: flex; gap: 8px; align-items: center;
+      margin: 0 14px 12px; flex-wrap: wrap;
+    }
+    .sc-tool-btn {
+      font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1px;
+      padding: 6px 12px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border);
+      background: rgba(0,0,0,0.2); color: var(--muted); transition: all 0.2s; width: auto;
+    }
+    .sc-tool-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .sc-tool-btn.on { border-color: var(--accent2); color: var(--accent2); background: rgba(0,255,157,0.08); }
+    .sc-notif-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--danger);
+      display: inline-block; margin-left: 4px; animation: pulse 1s infinite;
+    }
+
+    /* ── MULTI-SIGNAL WATCHLIST ── */
+    .watchlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 12px; margin-top: 8px; }
+    .wl-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px; position: relative; overflow: hidden;
+    }
+    .wl-card.analyzing { border-color: rgba(0,212,255,0.4); }
+    .wl-pair { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 6px; letter-spacing: 1px; }
+    .wl-signal { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; }
+    .wl-signal.buy  { color: var(--accent2); }
+    .wl-signal.sell { color: var(--danger); }
+    .wl-signal.wait { color: var(--warn); }
+    .wl-signal.pending { color: var(--muted); }
+    .wl-meta { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: 'Space Mono', monospace; }
+    .wl-price { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--text); margin-top: 6px; }
+    .wl-analyze-btn {
+      position: absolute; top: 12px; right: 12px;
+      font-size: 10px; font-family: 'Space Mono', monospace;
+      padding: 4px 10px; border-radius: 8px;
+      border: 1px solid var(--border); background: rgba(0,212,255,0.07);
+      color: var(--muted); cursor: pointer; transition: all 0.2s; width: auto;
+    }
+    .wl-analyze-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .wl-loader {
+      display: none; position: absolute; inset: 0;
+      background: rgba(6,13,26,0.8); align-items: center; justify-content: center;
+      border-radius: 14px; font-family: 'Space Mono', monospace;
+      font-size: 11px; color: var(--accent); letter-spacing: 1px;
+    }
+    .wl-loader.show { display: flex; }
+
+    /* ── NOTIFICATION PANEL ── */
+    #notifPanel {
+      position: fixed; top: 20px; right: 20px; z-index: 1000;
+      display: flex; flex-direction: column; gap: 8px; max-width: 300px;
+      pointer-events: none;
+    }
+    .notif-card {
+      background: var(--bg-card); border: 1px solid var(--accent);
+      border-radius: 12px; padding: 12px 16px;
+      font-family: 'Space Mono', monospace; font-size: 12px;
+      box-shadow: var(--glow); pointer-events: auto;
+      animation: notifIn 0.3s ease; cursor: pointer;
+    }
+    .notif-card.danger { border-color: var(--danger); color: var(--danger); }
+    .notif-card.success { border-color: var(--accent2); color: var(--accent2); }
+    @keyframes notifIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+
+    /* ── AUTO-REFRESH TIMER ── */
+    .sc-timer-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 0 14px 8px;
+      font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted);
+    }
+    .sc-timer-bar { height: 3px; border-radius: 3px; background: rgba(0,0,0,0.3); margin: 0 14px 12px; overflow: hidden; }
+    .sc-timer-fill { height: 100%; background: var(--accent); transition: width 1s linear; border-radius: 3px; }
+
+    /* ── TRADINGVIEW CHART ── */
+    .tv-tf-btn {
+      font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1px;
+      padding: 5px 10px; border-radius: 7px; border: 1px solid var(--border);
+      background: rgba(0,0,0,0.2); color: var(--muted); cursor: pointer;
+      transition: all 0.2s; width: auto;
+    }
+    .tv-tf-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tv-tf-btn.active-tf { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.12); }
+
+    .tv-pair-btn {
+      font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 1px;
+      padding: 5px 10px; border-radius: 7px; border: 1px solid var(--border);
+      background: rgba(0,0,0,0.2); color: var(--muted); cursor: pointer;
+      transition: all 0.2s; width: auto;
+    }
+    .tv-pair-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+    .tv-pair-btn.active-pair { border-color: var(--accent2); color: var(--accent2); background: rgba(0,255,157,0.1); }
+
+    .price-card.selected {
+      border-color: var(--accent2) !important;
+      box-shadow: 0 0 0 2px rgba(0,255,157,0.2);
+    }
+
+    /* ── AI CHAT ── */
+    .chat-wrap {
+      display: flex; flex-direction: column;
+      height: calc(100vh - 120px);
+      max-width: 820px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--glow);
+    }
+
+    .chat-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+
+    .chat-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+
+    .chat-header-info { flex: 1; }
+    .chat-header-name { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--accent); }
+    .chat-header-status { font-size: 11px; color: var(--accent2); display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+    .chat-online-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); animation: pulse 1.5s infinite; }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 16px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-msg { display: flex; gap: 10px; align-items: flex-end; max-width: 85%; }
+    .chat-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .chat-msg.ai   { align-self: flex-start; }
+
+    .chat-bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.65;
+      word-break: break-word;
+      max-width: 100%;
+    }
+
+    .chat-msg.ai   .chat-bubble {
+      background: rgba(0,212,255,0.07);
+      border: 1px solid rgba(0,212,255,0.15);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-msg.user .chat-bubble {
+      background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,255,157,0.15));
+      border: 1px solid rgba(0,255,157,0.2);
+      color: var(--text);
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-msg-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+
+    .chat-msg.ai   .chat-msg-avatar { background: linear-gradient(135deg,var(--accent),var(--accent2)); }
+    .chat-msg.user .chat-msg-avatar { background: rgba(0,255,157,0.15); border: 1px solid rgba(0,255,157,0.3); }
+
+    .chat-time { font-size: 10px; color: var(--muted); margin-top: 4px; font-family: 'Space Mono', monospace; }
+    .chat-msg.user .chat-time { text-align: right; }
+
+    /* typing indicator */
+    .typing-bubble {
+      display: flex; gap: 5px; align-items: center; padding: 14px 18px;
+      background: rgba(0,212,255,0.07);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 16px; border-bottom-left-radius: 4px;
+    }
+    .typing-bubble span {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+      animation: typingBounce 1.2s ease-in-out infinite;
+    }
+    .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%,60%,100% { transform: translateY(0); opacity:0.4; }
+      30%          { transform: translateY(-6px); opacity:1; }
+    }
+
+    /* Quick prompts */
+    .chat-quick { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 12px; flex-shrink: 0; }
+    .quick-btn {
+      font-size: 12px; padding: 6px 12px; border-radius: 20px;
+      border: 1px solid var(--border); background: rgba(0,212,255,0.05);
+      color: var(--muted); cursor: pointer; transition: all 0.2s;
+      font-family: 'Sora', sans-serif; width: auto;
+      white-space: nowrap;
+    }
+    .quick-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.1); }
+
+    /* Input area */
+    .chat-input-wrap {
+      display: flex; gap: 10px; align-items: flex-end;
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    #chatInput {
+      flex: 1; resize: none; min-height: 44px; max-height: 120px;
+      padding: 12px 14px; border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.3);
+      color: var(--text); font-family: 'Sora', sans-serif; font-size: 14px;
+      outline: none; transition: border-color 0.2s;
+      line-height: 1.5;
+    }
+    #chatInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
+
+    .chat-send-btn {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 18px; transition: opacity 0.2s, transform 0.15s;
+      flex-shrink: 0;
+    }
+    .chat-send-btn:hover { opacity: 0.85; transform: scale(1.05); }
+    .chat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* Chat message formatting */
+    .chat-bubble b, .chat-bubble strong { color: var(--accent2); }
+    .chat-bubble code {
+      background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;
+      font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent);
+    }
+    .chat-bubble ul, .chat-bubble ol { padding-left: 18px; margin: 6px 0; }
+    .chat-bubble li { margin: 3px 0; }
+    .chat-bubble hr { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
+    /* Floating chat button */
+    #floatChatBtn {
+      position: fixed; bottom: 28px; left: 245px; z-index: 997;
+      width: 50px; height: 50px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 22px; box-shadow: 0 4px 20px rgba(0,212,255,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #floatChatBtn:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(0,212,255,0.6); }
+    #floatChatBadge {
+      position: absolute; top: -4px; right: -4px;
+      background: var(--danger); color: #fff;
+      width: 18px; height: 18px; border-radius: 50%;
+      font-size: 10px; font-weight: 700; font-family: 'Space Mono', monospace;
+      display: none; align-items: center; justify-content: center;
+    }
+
+    /* ── PRINT / PDF ── */
+    @media print {
+      .sidebar, .card:not(#printCard), #notifPanel, #toast, .sc-toolbar, .sc-status-controls, .sc-update-btn { display: none !important; }
+      body { display: block; background: #000; }
+      .main { padding: 0; background: #000; }
+      .page { display: block !important; }
+      .page:not(#page-analyzer) { display: none !important; }
+      #signalCardWrap { width: 100%; max-width: 420px; margin: 0 auto; }
+    }
+  </style>
+  <!-- TradingView library preloaded for instant chart render -->
+  <script src="https://s3.tradingview.com/tv.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">
+    <div style="font-size:11px;color:var(--muted);letter-spacing:3px;margin-bottom:4px">NATHANZ</div>
+    AI<span>TRADE</span>
+    <br><small style="font-size:10px;color:var(--muted)">ANALYZER v3.0</small>
+  </div>
+  <nav class="menu">
+    <div class="menu-item" onclick="showPage('home')"><span>🏠</span> Home</div>
+    <div class="menu-item active" onclick="showPage('analyzer')"><span>📊</span> Analyzer</div>
+    <div class="menu-item" onclick="showPage('market')"><span>📈</span> Market</div>
+    <div class="menu-item" onclick="showPage('chat')"><span>💬</span> AI Chat</div>
+    <div class="menu-item" onclick="showPage('logs')"><span>🧠</span> AI Logs</div>
+    <div class="menu-item" onclick="showPage('settings')"><span>⚙️</span> Settings</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div style="color:var(--accent2);font-weight:700;font-size:11px;letter-spacing:1px;margin-bottom:4px">NATHANZ AI TRADE</div>
+    <div style="font-size:10px">© 2025 All Rights Reserved</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- HOME -->
+  <div class="page" id="page-home">
+    <div class="page-header">
+      <div class="page-title">🏠 HOME</div>
+      <div class="page-sub">Selamat datang di AI Trading Analyzer</div>
+    </div>
+    <!-- API Key warning banner -->
+    <div id="apiKeyBanner" class="card" style="max-width:700px;border-color:rgba(255,184,0,0.4);background:rgba(255,184,0,0.05);display:none;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">⚠️</div>
+        <div style="flex:1">
+          <div style="font-weight:700;color:var(--warn);font-family:'Space Mono',monospace;font-size:13px;margin-bottom:4px">API KEY BELUM DISET</div>
+          <div style="font-size:13px;color:var(--muted)">Fitur AI Chat &amp; Analyzer tidak berjalan tanpa API key. Dapatkan gratis di <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a></div>
+        </div>
+        <button class="btn-primary" onclick="showPage('settings')" style="width:auto;padding:10px 18px;white-space:nowrap;flex-shrink:0">⚙️ Set API Key</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Cara Penggunaan</div>
+      <p style="color:var(--muted);font-size:14px;line-height:1.9">
+        1. Buka halaman <b style="color:var(--accent)">Analyzer</b><br>
+        2. Pilih pair, timeframe, dan risk level<br>
+        3. Upload screenshot chart dari platform trading kamu<br>
+        4. Klik <b style="color:var(--accent2)">Analisa AI</b> — Claude akan membaca chart kamu secara nyata<br>
+        5. Lihat Signal Card dengan Entry, SL, TP1/TP2/TP3<br>
+        6. Update status trade (TP1 Hit, TP2 Hit, dll) secara manual<br>
+        7. Semua log tersimpan di <b style="color:var(--accent)">AI Logs</b>
+      </p>
+    </div>
+  </div>
+
+  <!-- ANALYZER -->
+  <div class="page active" id="page-analyzer">
+    <div class="page-header">
+      <div class="page-title">📊 ANALYZER</div>
+      <div class="page-sub">Upload chart — Claude AI membaca chart & generate signal card</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:340px 1fr;gap:22px;max-width:1000px">
+
+      <!-- LEFT: Input -->
+      <div>
+        <div class="card">
+          <div class="card-title">Konfigurasi</div>
+
+          <div class="form-group">
+            <label>Pair</label>
+            <select id="pair">
+              <option>XAUUSD</option><option>EURUSD</option><option>GBPUSD</option>
+              <option>USDJPY</option><option>AUDUSD</option><option>USDCAD</option>
+              <option>BTCUSD</option><option>ETHUSD</option>
+              <option>US30</option><option>NAS100</option>
+            </select>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Timeframe</label>
+              <select id="timeframe">
+                <option>M1</option><option>M5</option><option>M15</option>
+                <option selected>H1</option><option>H4</option><option>D1</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Risk %</label>
+              <select id="risk">
+                <option value="0.5">0.5%</option>
+                <option value="1" selected>1%</option>
+                <option value="2">2%</option>
+                <option value="3">3%</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Strategi</label>
+            <select id="strategy">
+              <option value="general">General (Smart Money)</option>
+              <option value="scalping">Scalping</option>
+              <option value="swing">Swing Trading</option>
+              <option value="trend">Trend Following</option>
+              <option value="reversal">Reversal</option>
+              <option value="breakout">Breakout</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Upload Chart</label>
+            <input type="file" id="upload" accept="image/*">
+            <img id="preview" />
+          </div>
+
+          <button class="btn-primary" id="analyzeBtn" onclick="analyzeImage()">⚡ ANALISA AI</button>
+          <div id="errorBox" class="error-box"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Signal Card -->
+      <div id="signalCardWrap">
+
+        <!-- Placeholder -->
+        <div id="signalPlaceholder" style="background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:50px 20px;text-align:center;color:var(--muted)">
+          <div style="font-size:48px;margin-bottom:16px">📡</div>
+          <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);margin-bottom:8px">SIGNAL CARD</div>
+          <div style="font-size:13px">Upload chart & klik Analisa AI<br>untuk generate signal</div>
+        </div>
+
+        <!-- Loading -->
+        <div id="signalLoading" style="display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:18px">
+          <div class="loading-wrap">
+            <div class="loader-bars">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="loading-text">MEMBACA CHART...</div>
+            <div class="loading-sub" id="loadingStep">Mengirim ke Claude AI</div>
+          </div>
+        </div>
+
+        <!-- THE SIGNAL CARD -->
+        <div class="signal-card" id="theSignalCard" style="display:none">
+
+          <!-- Live Price -->
+          <div class="sc-live-price">
+            <div>
+              <div class="sc-live-label">LIVE PRICE</div>
+              <div class="sc-live-val" id="sc-live-val">—</div>
+            </div>
+            <div style="text-align:right">
+              <div class="sc-live-label">24H CHANGE</div>
+              <div class="sc-live-chg" id="sc-live-chg">—</div>
+            </div>
+          </div>
+
+          <!-- Mini Sparkline Chart -->
+          <div class="sc-mini-chart">
+            <canvas id="sc-sparkline" height="60"></canvas>
+          </div>
+
+          <!-- Toolbar: Auto-refresh, Notif, Export PDF -->
+          <div class="sc-toolbar">
+            <button class="sc-tool-btn" id="autoRefreshBtn" onclick="toggleAutoRefresh()">⏱ Auto-Refresh: OFF</button>
+            <button class="sc-tool-btn" id="notifBtn" onclick="toggleNotif()">🔔 Notifikasi: OFF</button>
+            <button class="sc-tool-btn" onclick="exportPDF()">📄 Export PDF</button>
+          </div>
+
+          <!-- Auto-refresh timer bar -->
+          <div class="sc-timer-row">
+            <span id="timerLabel" style="display:none">🔄 Refresh dalam <span id="timerCountdown">—</span></span>
+          </div>
+          <div class="sc-timer-bar"><div class="sc-timer-fill" id="timerFill" style="width:100%"></div></div>
+
+          <!-- Header -->
+          <div class="sc-header">
+            <div class="sc-pair-label" id="sc-pair-label">XAUUSD SIGNAL</div>
+            <button class="sc-update-btn" id="updateBtn" onclick="reAnalyze()">↻ Update</button>
+          </div>
+
+          <!-- BUY / SELL / WAIT -->
+          <div class="sc-signal-row">
+            <div class="sc-signal-text" id="sc-signal-text">BUY</div>
+            <div class="sc-pair-badge" id="sc-pair-badge">XAUUSD</div>
+          </div>
+
+          <!-- Confidence -->
+          <div class="sc-section">
+            <div class="sc-section-label">AI Confidence</div>
+            <div class="sc-conf-value" id="sc-conf-value">—</div>
+            <div class="sc-conf-track">
+              <div class="sc-conf-fill" id="sc-conf-fill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <!-- Entry Price -->
+          <div class="sc-entry-section">
+            <div class="sc-section-label">Entry Price</div>
+            <div class="sc-entry-value" id="sc-entry-value">—</div>
+          </div>
+
+          <!-- SL / TP Grid -->
+          <div class="sc-levels-grid">
+            <div class="sc-level-box sl-box">
+              <div class="sc-level-label">Stop Loss</div>
+              <div class="sc-level-value" id="sc-sl">—</div>
+            </div>
+            <div class="sc-level-box tp1-box">
+              <div class="sc-level-label">TP 1</div>
+              <div class="sc-level-value" id="sc-tp1">—</div>
+            </div>
+            <div class="sc-level-box tp2-box">
+              <div class="sc-level-label">TP 2</div>
+              <div class="sc-level-value" id="sc-tp2">—</div>
+            </div>
+            <div class="sc-level-box tp3-box">
+              <div class="sc-level-label">TP 3</div>
+              <div class="sc-level-value" id="sc-tp3">—</div>
+            </div>
+          </div>
+
+          <!-- Patterns -->
+          <div class="sc-patterns" id="sc-patterns"></div>
+
+          <!-- Analysis -->
+          <div class="sc-analysis">
+            <div class="sc-analysis-title">AI MARKET ANALYSIS</div>
+            <div class="sc-analysis-text" id="sc-analysis-text">—</div>
+
+            <div class="sc-status-row">
+              <div class="sc-status-label">Status:</div>
+              <div class="sc-status-badge active" id="sc-status-badge">ACTIVE</div>
+            </div>
+          </div>
+
+          <!-- Status buttons -->
+          <div class="sc-status-controls">
+            <button class="sc-status-btn" onclick="setTradeStatus('ACTIVE')">● Active</button>
+            <button class="sc-status-btn" onclick="setTradeStatus('TP1_HIT')">✓ TP1 Hit</button>
+            <button class="sc-status-btn" onclick="setTradeStatus('TP2_HIT')">✓ TP2 Hit</button>
+            <button class="sc-status-btn" onclick="setTradeStatus('TP3_HIT')">✓ TP3 Hit</button>
+            <button class="sc-status-btn" onclick="setTradeStatus('SL_HIT')">✕ SL Hit</button>
+            <button class="sc-status-btn" onclick="setTradeStatus('CLOSED')">■ Closed</button>
+          </div>
+
+        </div><!-- end signal card -->
+      </div>
+    </div>
+  </div>
+
+      <!-- MULTI-SIGNAL WATCHLIST -->
+      <div style="max-width:1000px;margin-top:4px">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div class="card-title" style="margin:0">📡 MULTI-SIGNAL WATCHLIST</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select id="wlPairAdd" style="width:120px;padding:6px 10px;font-size:12px">
+                <option>XAUUSD</option><option>EURUSD</option><option>GBPUSD</option>
+                <option>USDJPY</option><option>BTCUSD</option><option>ETHUSD</option>
+                <option>NAS100</option><option>US30</option>
+              </select>
+              <button class="sc-tool-btn" onclick="addWatchlistPair()" style="white-space:nowrap">+ Tambah Pair</button>
+            </div>
+          </div>
+          <div class="watchlist-grid" id="watchlistGrid"></div>
+        </div>
+      </div>
+  
+  <!-- MARKET PAGE -->
+  <div class="page" id="page-market">
+    <div class="page-header">
+      <div class="page-title">📈 MARKET</div>
+      <div class="page-sub">Live prices & TradingView charts — klik pair untuk lihat chart</div>
+    </div>
+
+    <!-- Ticker -->
+    <div class="ticker-bar">
+      <div class="ticker-inner" id="tickerInner"></div>
+    </div>
+
+    <!-- Layout: price grid LEFT, TV chart RIGHT -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
+
+      <!-- LEFT: Price Cards -->
+      <div>
+        <div class="market-grid" id="marketGrid"></div>
+        <div class="card">
+          <div class="card-title">Statistik Market</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <div style="text-align:center">
+              <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1px">BULLISH PAIRS</div>
+              <div style="font-size:28px;font-weight:700;color:var(--accent2)" id="statBull">—</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1px">BEARISH PAIRS</div>
+              <div style="font-size:28px;font-weight:700;color:var(--danger)" id="statBear">—</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1px">LAST UPDATE</div>
+              <div style="font-size:13px;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace;margin-top:8px" id="statUpdate">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: TradingView Live Chart -->
+      <div style="position:sticky;top:20px">
+        <div class="card" style="padding:0;overflow:hidden;border-radius:16px">
+
+          <!-- Chart Header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.2)">
+            <div>
+              <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">TRADINGVIEW LIVE CHART</div>
+              <div style="font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--accent);margin-top:3px" id="tvChartTitle">XAUUSD</div>
+            </div>
+            <!-- Timeframe selector -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+              <button class="tv-tf-btn active-tf" onclick="setTVTimeframe('1')">M1</button>
+              <button class="tv-tf-btn" onclick="setTVTimeframe('5')">M5</button>
+              <button class="tv-tf-btn" onclick="setTVTimeframe('15')">M15</button>
+              <button class="tv-tf-btn" onclick="setTVTimeframe('60')">H1</button>
+              <button class="tv-tf-btn" onclick="setTVTimeframe('240')">H4</button>
+              <button class="tv-tf-btn" onclick="setTVTimeframe('D')">D1</button>
+            </div>
+          </div>
+
+          <!-- TradingView Widget Container -->
+          <div id="tvChartWrap" style="height:480px;background:#070e1c;position:relative">
+            <div id="tvPlaceholder" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted)">
+              <div style="font-size:40px;margin-bottom:12px">📊</div>
+              <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--accent)">KLIK PAIR UNTUK LIHAT CHART</div>
+              <div style="font-size:12px;margin-top:6px">atau klik tombol pair di bawah</div>
+            </div>
+            <!-- TV widget injects here -->
+            <div id="tradingview_widget_container" style="height:100%"></div>
+          </div>
+
+          <!-- Quick pair select buttons -->
+          <div style="padding:12px 14px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px;background:rgba(0,0,0,0.15)">
+            <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);align-self:center;margin-right:4px">PAIR:</span>
+            <button class="tv-pair-btn active-pair" onclick="loadTVChart('XAUUSD')">XAUUSD</button>
+            <button class="tv-pair-btn" onclick="loadTVChart('EURUSD')">EURUSD</button>
+            <button class="tv-pair-btn" onclick="loadTVChart('GBPUSD')">GBPUSD</button>
+            <button class="tv-pair-btn" onclick="loadTVChart('USDJPY')">USDJPY</button>
+            <button class="tv-pair-btn" onclick="loadTVChart('AUDUSD')">AUDUSD</button>
+            <button class="tv-pair-btn" onclick="loadTVChart('BTCUSD')">BTCUSD</button>
+            <button class="tv-pair-btn" onclick="loadTVChart('ETHUSD')">ETHUSD</button>
+            <button class="tv-pair-btn" onclick="loadTVChart('NAS100')">NAS100</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end layout grid -->
+  </div>
+
+  <!-- AI CHAT PAGE -->
+  <div class="page" id="page-chat">
+    <div class="page-header">
+      <div class="page-title">💬 AI CHAT</div>
+      <div class="page-sub">Tanya apapun tentang trading — signal, strategi, analisa, cara entry & exit</div>
+    </div>
+
+    <div class="chat-wrap">
+      <!-- Header -->
+      <div class="chat-header">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-header-info">
+          <div class="chat-header-name">NATHANZ AI TRADE Assistant</div>
+          <div class="chat-header-status">
+            <span class="chat-online-dot"></span>
+            Online · Powered by Claude AI
+          </div>
+        </div>
+        <button onclick="clearChat()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:11px;font-family:'Space Mono',monospace;width:auto;transition:all 0.2s" onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🗑 Clear</button>
+      </div>
+
+      <!-- Messages -->
+      <div class="chat-messages" id="chatMessages"></div>
+
+      <!-- Quick prompts -->
+      <div class="chat-quick" id="chatQuick">
+        <button class="quick-btn" onclick="sendQuick('Apa sinyal terbaik untuk XAUUSD hari ini?')">📊 Signal XAUUSD</button>
+        <button class="quick-btn" onclick="sendQuick('Jelaskan cara entry yang benar untuk scalping')">⚡ Cara entry scalping</button>
+        <button class="quick-btn" onclick="sendQuick('Apa itu Smart Money Concept (SMC)?')">🧠 Apa itu SMC?</button>
+        <button class="quick-btn" onclick="sendQuick('Bagaimana cara menentukan Stop Loss yang tepat?')">🛑 Cara pasang SL</button>
+        <button class="quick-btn" onclick="sendQuick('Jelaskan perbedaan timeframe H1 vs H4 untuk swing trading')">⏱ H1 vs H4</button>
+        <button class="quick-btn" onclick="sendQuick('Apa itu Risk Reward Ratio dan berapa yang ideal?')">⚖️ Risk Reward</button>
+      </div>
+
+      <!-- Input -->
+      <div class="chat-input-wrap">
+        <textarea id="chatInput" placeholder="Tanya tentang signal, strategi, cara entry, analisa pair..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResizeChat(this)"></textarea>
+        <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()" title="Kirim">
+          <span id="chatSendIcon">➤</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-logs">
+    <div class="page-header">
+      <div class="page-title">🧠 AI LOGS</div>
+      <div class="page-sub">Riwayat signal — tersimpan lokal di browser</div>
+    </div>
+    <div class="card" style="max-width:720px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="card-title" style="margin:0">Log History</div>
+        <button class="btn-danger" style="width:auto;padding:6px 14px;margin:0" onclick="clearLogs()">🗑️ Hapus Semua</button>
+      </div>
+      <div id="logContainer"><div class="log-empty">Belum ada log.</div></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="page-header">
+      <div class="page-title">⚙️ SETTINGS</div>
+      <div class="page-sub">Kelola API key, akun, kredensial, dan cookies broker</div>
+    </div>
+
+    <!-- API KEY CARD -->
+    <div class="card" style="max-width:560px;border-color:rgba(0,255,157,0.3)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div class="card-title" style="margin:0;color:var(--accent2)">🔑 API Key Setup</div>
+        <span class="status-badge saved"><span class="dot"></span>Server-side</span>
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.8">
+        API key <b style="color:var(--text)">disimpan aman di server Netlify</b> — tidak terekspos di browser.<br><br>
+        <b style="color:var(--accent2)">Cara setup di Netlify:</b>
+      </p>
+      <div style="background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:10px;font-size:12px;font-family:'Space Mono',monospace;line-height:2;color:var(--muted)">
+        1. Buka <span style="color:var(--accent)">app.netlify.com</span><br>
+        2. Pilih site kamu → <span style="color:var(--accent)">Site Settings</span><br>
+        3. Klik <span style="color:var(--accent)">Environment Variables</span><br>
+        4. Add variable:<br>
+        &nbsp;&nbsp;Key: <span style="color:var(--accent2)">ANTHROPIC_API_KEY</span><br>
+        &nbsp;&nbsp;Value: <span style="color:var(--accent2)">sk-ant-api03-xxxx...</span><br>
+        5. <span style="color:var(--accent)">Redeploy</span> site kamu
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px">
+        Belum punya API key? Daftar di <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a>
+      </p>
+    </div>
+
+    <div class="card" style="max-width:560px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div class="card-title" style="margin:0">Akun Broker</div>
+        <span id="accountStatus" class="status-badge unsaved"><span class="dot"></span>Belum disimpan</span>
+      </div>
+      <div class="form-group">
+        <label>Email / Username</label>
+        <input type="email" id="settingEmail" placeholder="trader@broker.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="settingPassword" placeholder="••••••••••••">
+          <button class="pw-toggle" onclick="togglePw('settingPassword',this)">👁️</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Platform</label>
+        <select id="settingBroker">
+          <option value="">-- Pilih Platform --</option>
+          <option value="mt4">MetaTrader 4</option>
+          <option value="mt5">MetaTrader 5</option>
+          <option value="ctrader">cTrader</option>
+          <option value="web">Web Platform</option>
+        </select>
+      </div>
+      <hr class="divider">
+      <button class="btn-primary" onclick="saveAccount()">💾 SIMPAN AKUN</button>
+      <button class="btn-danger" onclick="clearAccount()">🗑️ Hapus Data Akun</button>
+    </div>
+
+    <div class="card" style="max-width:560px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div class="card-title" style="margin:0">Session Cookies</div>
+        <span id="cookieStatus" class="status-badge unsaved"><span class="dot"></span>Belum disimpan</span>
+      </div>
+      <div class="form-group">
+        <label>Raw Cookie String</label>
+        <textarea id="rawCookie" placeholder="session_id=abc123; token=xyz789..."></textarea>
+      </div>
+      <button class="btn-ghost" onclick="parseCookies()">🔍 Parse ke Key-Value</button>
+      <hr class="divider">
+      <label>Key-Value Cookies</label>
+      <div id="cookieList" style="margin-top:10px"></div>
+      <button class="add-cookie-btn" onclick="addCookieRow()">+ Tambah Cookie</button>
+      <hr class="divider">
+      <button class="btn-primary" onclick="saveCookies()">💾 SIMPAN COOKIES</button>
+      <button class="btn-danger" onclick="clearCookies()">🗑️ Hapus Semua Cookies</button>
+    </div>
+
+    <div class="card" style="max-width:560px;border-color:rgba(255,77,109,0.2)">
+      <div class="card-title" style="color:var(--danger)">⚠️ Catatan Keamanan</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7">
+        Data disimpan di <code style="color:var(--accent)">localStorage</code> browser —
+        <b style="color:var(--text)">tidak dikirim ke server manapun.</b>
+      </p>
+    </div>
+  </div>
+
+</div>
+<div id="toast"></div>
+<div id="notifPanel"></div>
+
+<!-- Floating AI Chat Button -->
+<button id="floatChatBtn" onclick="showPage('chat')" title="Buka AI Chat">
+  💬
+  <span id="floatChatBadge">1</span>
+</button>
+
+<!-- Watermark branding -->
+<div style="
+  position:fixed;bottom:16px;right:20px;z-index:998;
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;
+  color:rgba(0,212,255,0.25);pointer-events:none;text-align:right;line-height:1.5;
+  user-select:none;
+">
+  NATHANZ AI TRADE<br>
+  <span style="font-size:9px;color:rgba(0,255,157,0.2)">Powered by Claude AI</span>
+</div>
+
+<script>
+/* ═══════════════════════════════
+   STATE
+═══════════════════════════════ */
+let currentImageBase64 = null;
+let currentImageType   = null;
+let currentSignal      = null;
+let lastConfig         = {};
+
+// Auto-refresh
+let autoRefreshOn   = false;
+let autoRefreshSecs = 300; // 5 min
+let autoRefreshCountdown = autoRefreshSecs;
+let autoRefreshIv   = null;
+let timerIv         = null;
+
+// Notifications
+let notifOn = false;
+
+// Market prices state
+const PAIRS = [
+  { id:'XAUUSD', base:3280, digits:3, crypto:false },
+  { id:'EURUSD', base:1.0830, digits:5, crypto:false },
+  { id:'GBPUSD', base:1.2720, digits:5, crypto:false },
+  { id:'USDJPY', base:157.50, digits:3, crypto:false },
+  { id:'AUDUSD', base:0.6450, digits:5, crypto:false },
+  { id:'BTCUSD', base:102000, digits:0, crypto:true, sym:'BTCUSDT' },
+  { id:'ETHUSD', base:3800, digits:2, crypto:true, sym:'ETHUSDT' },
+  { id:'NAS100', base:20800, digits:2, crypto:false },
+];
+
+let marketData = {}; // { XAUUSD: { price, change, hist:[] } }
+let marketIv   = null;
+let watchlist  = []; // [{ pair, signal, conf, entry, sl, tp1, tp2, tp3 }]
+
+/* ═══════════════════════════════
+   NAVIGATION
+═══════════════════════════════ */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  ['home','analyzer','market','chat','logs','settings'].forEach((l, i) => {
+    if (l === name) document.querySelectorAll('.menu-item')[i].classList.add('active');
+  });
+  if (name === 'home') {
+    const banner = document.getElementById('apiKeyBanner');
+    if (banner) banner.style.display = getApiKey() ? 'none' : 'block';
+  }
+  if (name === 'market') { initMarket(); setTimeout(() => loadTVChart('XAUUSD'), 400); }
+  if (name === 'chat')   { hideChatBadge(); if (!chatHistory.length) showWelcomeMsg(); }
+}
+
+/* ═══════════════════════════════
+   IMAGE UPLOAD
+═══════════════════════════════ */
+document.getElementById('upload').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  document.getElementById('preview').src = URL.createObjectURL(file);
+  document.getElementById('preview').style.display = 'block';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const m = e.target.result.match(/^data:([^;]+);base64,(.+)$/);
+    if (m) { currentImageType = m[1]; currentImageBase64 = m[2]; }
+  };
+  reader.readAsDataURL(file);
+});
+
+/* ═══════════════════════════════
+   ANALYZE
+═══════════════════════════════ */
+async function analyzeImage() {
+  if (!currentImageBase64) { showError('⚠️ Upload screenshot chart terlebih dahulu!'); return; }
+  await runAnalysis();
+}
+
+async function reAnalyze() {
+  if (!currentImageBase64) { showToast('⚠️ Tidak ada chart yang di-upload.'); return; }
+  await runAnalysis();
+}
+
+async function runAnalysis() {
+  if (!checkApiKey()) return;
+  const pair     = document.getElementById('pair').value;
+  const tf       = document.getElementById('timeframe').value;
+  const risk     = document.getElementById('risk').value;
+  const strategy = document.getElementById('strategy').value;
+  lastConfig     = { pair, tf, risk, strategy };
+
+  document.getElementById('signalPlaceholder').style.display = 'none';
+  document.getElementById('theSignalCard').style.display      = 'none';
+  document.getElementById('signalLoading').style.display      = 'block';
+  document.getElementById('errorBox').style.display           = 'none';
+
+  const btn    = document.getElementById('analyzeBtn');
+  const updBtn = document.getElementById('updateBtn');
+  btn.disabled = updBtn.disabled = true;
+  btn.textContent = '⏳ Menganalisa...';
+
+  const steps = [
+    'Mengirim chart ke Claude AI...','Membaca candlestick & pola...',
+    'Menghitung support & resistance...','Kalkulasi TP1 / TP2 / TP3...','Menyusun signal card...'
+  ];
+  let si = 0;
+  const stepEl = document.getElementById('loadingStep');
+  const iv = setInterval(() => { stepEl.textContent = steps[Math.min(si++, steps.length-1)]; }, 1400);
+
+  try {
+    const res = await fetch('/api/ai-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role:'user', content:[
+          { type:'image', source:{ type:'base64', media_type:currentImageType, data:currentImageBase64 } },
+          { type:'text',  text: buildPrompt(pair, tf, risk, strategy) }
+        ]}]
+      })
+    });
+
+    clearInterval(iv);
+    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e?.error?.message || `HTTP ${res.status}`); }
+
+    const data   = await res.json();
+    const raw    = data.content.map(b => b.text||'').join('');
+    const parsed = parseResponse(raw);
+    currentSignal = { ...parsed, pair, tf, risk, strategy };
+
+    renderSignalCard(parsed, pair, tf);
+    saveLog({ pair, tf, risk, strategy, result: parsed, time: Date.now() });
+    showToast('✅ Signal berhasil digenerate!');
+    if (notifOn) pushNotif(`${pair} ${parsed.signal} — Conf ${parsed.confidence}%`, parsed.signal === 'BUY' ? 'success' : parsed.signal === 'SELL' ? 'danger' : 'default');
+
+    // start auto-refresh timer if on
+    if (autoRefreshOn) startRefreshTimer();
+
+  } catch(err) {
+    clearInterval(iv);
+    document.getElementById('signalLoading').style.display = 'none';
+    document.getElementById('signalPlaceholder').style.display = 'block';
+    showError('❌ ' + err.message);
+  } finally {
+    btn.disabled = updBtn.disabled = false;
+    btn.textContent = '⚡ ANALISA AI';
+  }
+}
+
+/* ── PROMPT ── */
+function buildPrompt(pair, tf, risk, strategy) {
+  const sDesc = {
+    general:'Smart Money Concepts: order blocks, liquidity, BOS/CHOCH',
+    scalping:'Scalping: entry cepat, SL ketat',
+    swing:'Swing Trading: hold beberapa candle, RR min 1:3',
+    trend:'Trend Following: searah tren utama',
+    reversal:'Reversal: pembalikan di area jenuh',
+    breakout:'Breakout: entry saat tembus level kunci'
+  }[strategy] || 'General technical analysis';
+
+  return `Kamu adalah analis trading profesional. Analisa chart ini untuk instrument ${pair} pada timeframe ${tf}.
+Strategi: ${sDesc}. Risk per trade: ${risk}%
+Lihat chart dengan teliti. Identifikasi tren, support/resistance, pola candlestick, dan momentum.
+Untuk level harga: berikan estimasi angka berdasarkan apa yang terlihat di chart.
+Balas HANYA JSON valid ini tanpa teks lain:
+{"signal":"BUY"|"SELL"|"WAIT","confidence":<int 0-100>,"trend":"Bullish"|"Bearish"|"Sideways","entry":"<harga/zona>","sl":"<harga/zona SL>","tp1":"<TP konservatif>","tp2":"<TP moderat>","tp3":"<TP agresif>","rr":"<misal 1:2.5>","patterns":["<pola>"],"analysis":"<analisa 3-4 kalimat bahasa Indonesia>"}`;
+}
+
+/* ── PARSE ── */
+function parseResponse(text) {
+  try {
+    const clean = text.replace(/```json|```/g,'').trim();
+    const match = clean.match(/\{[\s\S]*\}/);
+    if (!match) throw 0;
+    return JSON.parse(match[0]);
+  } catch {
+    const l = text.toLowerCase();
+    return { signal: l.includes('sell')?'SELL':l.includes('wait')?'WAIT':'BUY', confidence:65, trend:'Sideways', entry:'Lihat chart', sl:'Bawah support', tp1:'R1', tp2:'R2', tp3:'R3', rr:'1:2', patterns:[], analysis:text.slice(0,300) };
+  }
+}
+
+/* ═══════════════════════════════
+   RENDER SIGNAL CARD
+═══════════════════════════════ */
+function renderSignalCard(d, pair, tf) {
+  document.getElementById('signalLoading').style.display = 'none';
+  document.getElementById('theSignalCard').style.display = 'block';
+
+  document.getElementById('sc-pair-label').textContent = `${pair} SIGNAL`;
+  document.getElementById('sc-pair-badge').textContent  = pair;
+
+  const sig = d.signal || 'WAIT';
+  const sEl = document.getElementById('sc-signal-text');
+  sEl.textContent = sig;
+  sEl.className   = 'sc-signal-text ' + sig.toLowerCase();
+
+  const conf = Math.max(0, Math.min(100, parseInt(d.confidence)||70));
+  document.getElementById('sc-conf-value').textContent = conf + '%';
+  setTimeout(() => { document.getElementById('sc-conf-fill').style.width = conf + '%'; }, 100);
+
+  document.getElementById('sc-entry-value').textContent = d.entry      || '—';
+  document.getElementById('sc-sl').textContent           = d.sl         || '—';
+  document.getElementById('sc-tp1').textContent          = d.tp1        || '—';
+  document.getElementById('sc-tp2').textContent          = d.tp2        || '—';
+  document.getElementById('sc-tp3').textContent          = d.tp3        || '—';
+
+  const pats = Array.isArray(d.patterns) ? d.patterns.filter(Boolean) : [];
+  document.getElementById('sc-patterns').innerHTML = pats.map(p=>`<span class="sc-pattern-tag">${p}</span>`).join('');
+
+  document.getElementById('sc-analysis-text').textContent = d.analysis || '—';
+  setTradeStatus('ACTIVE');
+
+  // Update live price for this pair
+  updateSignalLivePrice(pair);
+  drawMiniSparkline(pair);
+}
+
+/* ═══════════════════════════════
+   LIVE PRICE ON SIGNAL CARD
+═══════════════════════════════ */
+function updateSignalLivePrice(pair) {
+  const md = marketData[pair];
+  const lv = document.getElementById('sc-live-val');
+  const lc = document.getElementById('sc-live-chg');
+  if (!lv || !lc) return;
+  if (md) {
+    lv.textContent = formatPrice(md.price, pair);
+    const chg = md.change || 0;
+    lc.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+    lc.className   = 'sc-live-chg ' + (chg >= 0 ? 'up' : 'dn');
+  } else {
+    lv.textContent = '—'; lc.textContent = '—'; lc.className = 'sc-live-chg';
+  }
+}
+
+/* ═══════════════════════════════
+   MINI SPARKLINE ON SIGNAL CARD
+═══════════════════════════════ */
+function drawMiniSparkline(pair) {
+  const canvas = document.getElementById('sc-sparkline');
+  if (!canvas) return;
+  const md = marketData[pair];
+  const hist = md ? md.hist : generateFakeHist(3280, 30);
+  const ctx = canvas.getContext('2d');
+  const W = canvas.parentElement.offsetWidth || 300;
+  canvas.width = W; canvas.height = 60;
+  drawSparkline(ctx, hist, W, 60, true);
+}
+
+function drawSparkline(ctx, data, W, H, gradient) {
+  if (!data || data.length < 2) return;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const isUp = data[data.length-1] >= data[0];
+  const color = isUp ? '#00ff9d' : '#ff4d6d';
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = (i / (data.length-1)) * W;
+    const y = H - ((v - min) / range) * (H - 8) - 4;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+
+  if (gradient) {
+    const grad = ctx.createLinearGradient(0, 0, W, 0);
+    grad.addColorStop(0, color + '44');
+    grad.addColorStop(1, color);
+    ctx.strokeStyle = grad;
+  } else { ctx.strokeStyle = color; }
+
+  ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Fill area
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  const fillGrad = ctx.createLinearGradient(0, 0, 0, H);
+  fillGrad.addColorStop(0, color + '22');
+  fillGrad.addColorStop(1, color + '00');
+  ctx.fillStyle = fillGrad; ctx.fill();
+}
+
+/* ═══════════════════════════════
+   TRADE STATUS
+═══════════════════════════════ */
+const statusMap = {
+  ACTIVE: {cls:'active',label:'ACTIVE'}, TP1_HIT:{cls:'tp1hit',label:'TP1_HIT'},
+  TP2_HIT:{cls:'tp2hit',label:'TP2_HIT'}, TP3_HIT:{cls:'tp3hit',label:'TP3_HIT'},
+  SL_HIT: {cls:'sl_hit',label:'SL_HIT'}, CLOSED:{cls:'closed',label:'CLOSED'},
+};
+
+function setTradeStatus(key) {
+  const s  = statusMap[key] || statusMap['ACTIVE'];
+  const el = document.getElementById('sc-status-badge');
+  el.className = 'sc-status-badge ' + s.cls;
+  el.textContent = s.label;
+  document.querySelectorAll('.sc-status-btn').forEach(b=>b.classList.remove('active-btn'));
+  const keys = ['ACTIVE','TP1_HIT','TP2_HIT','TP3_HIT','SL_HIT','CLOSED'];
+  const idx  = keys.indexOf(key);
+  const btns = document.querySelectorAll('.sc-status-btn');
+  if (btns[idx]) btns[idx].classList.add('active-btn');
+  if (currentSignal) { currentSignal.status = key; updateLastLogStatus(key); }
+  if (notifOn && key !== 'ACTIVE') {
+    const msgs = {TP1_HIT:'TP1 Tercapai! 🎯',TP2_HIT:'TP2 Tercapai! 🎯🎯',TP3_HIT:'TP3 Tercapai! 🏆',SL_HIT:'SL Kena ❌',CLOSED:'Trade Ditutup'};
+    if (msgs[key]) pushNotif(msgs[key], key==='SL_HIT'?'danger':'success');
+  }
+}
+
+function updateLastLogStatus(status) {
+  const logs = getLogs();
+  if (logs.length>0) { logs[0].status=status; localStorage.setItem('trade_logs',JSON.stringify(logs)); }
+}
+
+/* ═══════════════════════════════
+   AUTO-REFRESH
+═══════════════════════════════ */
+function toggleAutoRefresh() {
+  autoRefreshOn = !autoRefreshOn;
+  const btn = document.getElementById('autoRefreshBtn');
+  btn.textContent = `⏱ Auto-Refresh: ${autoRefreshOn?'ON':'OFF'}`;
+  btn.className   = 'sc-tool-btn' + (autoRefreshOn?' on':'');
+  if (autoRefreshOn) { startRefreshTimer(); showToast('⏱ Auto-refresh aktif (5 menit)'); }
+  else { stopRefreshTimer(); showToast('⏱ Auto-refresh dimatikan'); }
+}
+
+function startRefreshTimer() {
+  stopRefreshTimer();
+  autoRefreshCountdown = autoRefreshSecs;
+  const fill = document.getElementById('timerFill');
+  const lbl  = document.getElementById('timerLabel');
+  const cd   = document.getElementById('timerCountdown');
+  if (lbl) lbl.style.display = 'inline';
+
+  timerIv = setInterval(() => {
+    autoRefreshCountdown--;
+    if (cd) cd.textContent = autoRefreshCountdown + 's';
+    if (fill) fill.style.width = (autoRefreshCountdown / autoRefreshSecs * 100) + '%';
+    if (autoRefreshCountdown <= 0) {
+      stopRefreshTimer();
+      reAnalyze();
+    }
+  }, 1000);
+}
+
+function stopRefreshTimer() {
+  clearInterval(timerIv);
+  const fill = document.getElementById('timerFill');
+  const lbl  = document.getElementById('timerLabel');
+  if (fill) fill.style.width = '100%';
+  if (lbl)  lbl.style.display = 'none';
+}
+
+/* ═══════════════════════════════
+   NOTIFICATIONS
+═══════════════════════════════ */
+function toggleNotif() {
+  notifOn = !notifOn;
+  const btn = document.getElementById('notifBtn');
+  btn.innerHTML = `🔔 Notifikasi: ${notifOn?'ON':'OFF'}${notifOn?'<span class="sc-notif-dot"></span>':''}`;
+  btn.className = 'sc-tool-btn' + (notifOn?' on':'');
+  if (notifOn) {
+    if (Notification && Notification.permission === 'default') Notification.requestPermission();
+    showToast('🔔 Notifikasi aktif');
+  } else { showToast('🔕 Notifikasi dimatikan'); }
+}
+
+function pushNotif(msg, type='default') {
+  // In-app notification
+  const panel = document.getElementById('notifPanel');
+  const card  = document.createElement('div');
+  card.className = 'notif-card ' + (type==='danger'?'danger':type==='success'?'success':'');
+  card.textContent = msg;
+  card.onclick = () => card.remove();
+  panel.appendChild(card);
+  setTimeout(() => card.remove(), 5000);
+
+  // Browser notification
+  if (Notification && Notification.permission === 'granted') {
+    new Notification('AI Trading Signal', { body: msg, icon: '' });
+  }
+}
+
+/* ═══════════════════════════════
+   EXPORT PDF
+═══════════════════════════════ */
+function exportPDF() {
+  if (!currentSignal) { showToast('⚠️ Belum ada signal untuk di-export!'); return; }
+  window.print();
+}
+
+/* ═══════════════════════════════
+   MARKET DATA & PRICES
+═══════════════════════════════ */
+function initMarket() {
+  if (!Object.keys(marketData).length) initMarketData();
+  renderMarketGrid();
+  renderTicker();
+  clearInterval(marketIv);
+  marketIv = setInterval(() => { updateAllPrices(); renderMarketGrid(); renderTicker(); }, 10000);
+}
+
+function initMarketData() {
+  PAIRS.forEach(p => {
+    const hist = generateFakeHist(p.base, 30);
+    const last = hist[hist.length-1];
+    const first= hist[0];
+    marketData[p.id] = {
+      price: last, change: ((last-first)/first*100),
+      hist, high: Math.max(...hist), low: Math.min(...hist), digits: p.digits
+    };
+  });
+  fetchCryptoPrices();
+}
+
+async function fetchCryptoPrices() {
+  for (const p of PAIRS.filter(x=>x.crypto)) {
+    try {
+      const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${p.sym}`);
+      if (!r.ok) continue;
+      const d = await r.json();
+      const price  = parseFloat(d.lastPrice);
+      const change = parseFloat(d.priceChangePercent);
+      const hist   = generateFakeHist(price, 30, 0.002);
+      hist[hist.length-1] = price;
+      marketData[p.id] = { price, change, hist, high:parseFloat(d.highPrice), low:parseFloat(d.lowPrice), digits:p.digits };
+    } catch {}
+  }
+  renderMarketGrid();
+  renderTicker();
+}
+
+function updateAllPrices() {
+  PAIRS.forEach(p => {
+    const md = marketData[p.id];
+    if (!md) return;
+    const volatility = p.id.includes('JPY') ? 0.0002 : p.crypto ? 0.003 : 0.0001;
+    const delta = md.price * volatility * (Math.random()-0.5);
+    md.price = parseFloat((md.price + delta).toFixed(p.digits || 5));
+    md.hist.push(md.price);
+    if (md.hist.length > 60) md.hist.shift();
+    md.change = ((md.price - md.hist[0]) / md.hist[0]) * 100;
+    md.high = Math.max(md.high, md.price);
+    md.low  = Math.min(md.low,  md.price);
+  });
+  // Re-fetch crypto occasionally
+  if (Math.random() < 0.3) fetchCryptoPrices();
+
+  // Update signal card live price
+  if (currentSignal) updateSignalLivePrice(currentSignal.pair);
+
+  // Update market stats
+  const vals = Object.values(marketData);
+  const bull = vals.filter(v=>v.change>=0).length;
+  const bear = vals.length - bull;
+  const sb = document.getElementById('statBull');
+  const se = document.getElementById('statBear');
+  const su = document.getElementById('statUpdate');
+  if (sb) sb.textContent = bull;
+  if (se) se.textContent = bear;
+  if (su) su.textContent = new Date().toLocaleTimeString('id-ID');
+}
+
+function generateFakeHist(base, n, vol=0.001) {
+  const hist = [base];
+  for (let i=1; i<n; i++) {
+    const prev = hist[i-1];
+    const delta = prev * vol * (Math.random()-0.48);
+    hist.push(parseFloat((prev+delta).toFixed(5)));
+  }
+  return hist;
+}
+
+function formatPrice(price, pair) {
+  const p = PAIRS.find(x=>x.id===pair);
+  const d = p ? p.digits : 5;
+  if (d === 0) return Math.round(price).toLocaleString();
+  return price.toFixed(d);
+}
+
+/* ═══════════════════════════════
+   TRADINGVIEW LIVE CHART
+   Uses TradingView.widget() — tv.js preloaded in <head>
+═══════════════════════════════ */
+const TV_SYMBOLS = {
+  XAUUSD: 'OANDA:XAUUSD',
+  EURUSD: 'FX:EURUSD',
+  GBPUSD: 'FX:GBPUSD',
+  USDJPY: 'FX:USDJPY',
+  AUDUSD: 'FX:AUDUSD',
+  BTCUSD: 'BINANCE:BTCUSDT',
+  ETHUSD: 'BINANCE:ETHUSDT',
+  NAS100: 'NASDAQ:NDX',
+};
+
+let tvCurrentPair = 'XAUUSD';
+let tvCurrentTf   = '60';
+let tvWidget      = null;
+
+function loadTVChart(pair, tf) {
+  if (tf) tvCurrentTf = tf;
+  tvCurrentPair = pair || tvCurrentPair;
+
+  // Update header title
+  const titleEl = document.getElementById('tvChartTitle');
+  if (titleEl) titleEl.textContent = tvCurrentPair;
+
+  // Highlight pair buttons
+  document.querySelectorAll('.tv-pair-btn').forEach(b => {
+    b.classList.toggle('active-pair', b.textContent.trim() === tvCurrentPair);
+  });
+
+  // Highlight timeframe buttons
+  const tfLabels = {'1':'M1','5':'M5','15':'M15','60':'H1','240':'H4','D':'D1'};
+  document.querySelectorAll('.tv-tf-btn').forEach(b => {
+    b.classList.toggle('active-tf', b.textContent.trim() === (tfLabels[tvCurrentTf] || ''));
+  });
+
+  // Highlight selected price card
+  document.querySelectorAll('.price-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.pair === tvCurrentPair);
+  });
+
+  // Hide placeholder
+  const ph = document.getElementById('tvPlaceholder');
+  if (ph) ph.style.display = 'none';
+
+  // Clear container and create unique div id
+  const wrap = document.getElementById('tradingview_widget_container');
+  if (!wrap) return;
+
+  const containerId = 'tv_chart_' + Date.now();
+  wrap.innerHTML = '<div id="' + containerId + '" style="width:100%;height:100%"></div>';
+
+  // Remove previous widget reference
+  tvWidget = null;
+
+  // Wait for TradingView library then init
+  function initWidget() {
+    if (typeof TradingView === 'undefined') {
+      setTimeout(initWidget, 100);
+      return;
+    }
+    tvWidget = new TradingView.widget({
+      autosize:           true,
+      symbol:             TV_SYMBOLS[tvCurrentPair] || tvCurrentPair,
+      interval:           tvCurrentTf,
+      timezone:           'Asia/Jakarta',
+      theme:              'dark',
+      style:              '1',
+      locale:             'id',
+      toolbar_bg:         '#0d1b2e',
+      enable_publishing:  false,
+      hide_top_toolbar:   false,
+      hide_legend:        false,
+      withdateranges:     true,
+      save_image:         false,
+      container_id:       containerId,
+      studies:            ['Volume@tv-basicstudies', 'RSI@tv-basicstudies'],
+      overrides: {
+        'paneProperties.background':              '#070e1c',
+        'paneProperties.backgroundType':          'solid',
+        'paneProperties.vertGridProperties.color':'rgba(0,212,255,0.04)',
+        'paneProperties.horzGridProperties.color':'rgba(0,212,255,0.04)',
+        'scalesProperties.textColor':             '#567a99',
+        'mainSeriesProperties.candleStyle.upColor':           '#00ff9d',
+        'mainSeriesProperties.candleStyle.downColor':         '#ff4d6d',
+        'mainSeriesProperties.candleStyle.borderUpColor':     '#00ff9d',
+        'mainSeriesProperties.candleStyle.borderDownColor':   '#ff4d6d',
+        'mainSeriesProperties.candleStyle.wickUpColor':       '#00ff9d',
+        'mainSeriesProperties.candleStyle.wickDownColor':     '#ff4d6d',
+      }
+    });
+  }
+  initWidget();
+}
+
+function setTVTimeframe(tf) {
+  tvCurrentTf = tf;
+  loadTVChart(tvCurrentPair);
+}
+
+
+/* ── RENDER MARKET GRID (with click-to-chart) ── */
+function renderMarketGrid() {
+  const grid = document.getElementById('marketGrid');
+  if (!grid) return;
+
+  grid.innerHTML = PAIRS.map(p => {
+    const md = marketData[p.id];
+    if (!md) return '';
+    const isUp = md.change >= 0;
+    const chgStr = (isUp?'+':'') + md.change.toFixed(2) + '%';
+    return `
+      <div class="price-card ${isUp?'bullish':'bearish'}${p.id===tvCurrentPair?' selected':''}" data-pair="${p.id}" onclick="loadTVChart('${p.id}')" title="Klik untuk lihat chart ${p.id}">
+        <div class="pc-pair">${p.id}</div>
+        <div class="pc-price">${formatPrice(md.price, p.id)}</div>
+        <div class="pc-change ${isUp?'up':'dn'}">${chgStr}</div>
+        <div class="pc-sparkline"><canvas id="spark-${p.id}" height="40" width="180"></canvas></div>
+        <div class="pc-hl">
+          <span>L: ${formatPrice(md.low, p.id)}</span>
+          <span>H: ${formatPrice(md.high, p.id)}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Draw sparklines
+  PAIRS.forEach(p => {
+    const md = marketData[p.id];
+    if (!md) return;
+    const canvas = document.getElementById('spark-' + p.id);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    drawSparkline(ctx, md.hist, 180, 40, false);
+  });
+
+  // Update stats
+  const vals = Object.values(marketData);
+  const bull = vals.filter(v=>v.change>=0).length;
+  const sb = document.getElementById('statBull');
+  const se = document.getElementById('statBear');
+  const su = document.getElementById('statUpdate');
+  if (sb) sb.textContent = bull;
+  if (se) se.textContent = vals.length - bull;
+  if (su) su.textContent = new Date().toLocaleTimeString('id-ID');
+}
+
+/* ── TICKER BAR ── */
+function renderTicker() {
+  const el = document.getElementById('tickerInner');
+  if (!el) return;
+  const items = PAIRS.map(p => {
+    const md = marketData[p.id];
+    if (!md) return '';
+    const isUp = md.change >= 0;
+    return `<div class="ticker-item">
+      <span class="ticker-pair">${p.id}</span>
+      <span class="ticker-price">${formatPrice(md.price, p.id)}</span>
+      <span class="ticker-change ${isUp?'up':'dn'}">${isUp?'▲':'▼'}${Math.abs(md.change).toFixed(2)}%</span>
+    </div>`;
+  }).join('');
+  // Double for seamless loop
+  el.innerHTML = items + items;
+}
+
+/* ═══════════════════════════════
+   MULTI-SIGNAL WATCHLIST
+═══════════════════════════════ */
+function addWatchlistPair() {
+  const pair = document.getElementById('wlPairAdd').value;
+  if (watchlist.find(w=>w.pair===pair)) { showToast('⚠️ Pair sudah ada di watchlist!'); return; }
+  watchlist.push({ pair, signal:'—', conf:'—', entry:'—', sl:'—', tp1:'—', analyzed:false });
+  renderWatchlist();
+  // Init market data for this pair if not already
+  if (!marketData[pair]) {
+    const pInfo = PAIRS.find(p=>p.id===pair) || { base:1.0, digits:5, crypto:false };
+    const hist  = generateFakeHist(pInfo.base, 30);
+    marketData[pair] = { price:hist[hist.length-1], change:0, hist, high:Math.max(...hist), low:Math.min(...hist), digits:pInfo.digits };
+  }
+}
+
+function renderWatchlist() {
+  const grid = document.getElementById('watchlistGrid');
+  if (!grid) return;
+  if (!watchlist.length) {
+    grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:10px 0">Belum ada pair di watchlist. Tambahkan pair di atas.</div>';
+    return;
+  }
+  grid.innerHTML = watchlist.map((w, i) => {
+    const md  = marketData[w.pair];
+    const priceStr = md ? formatPrice(md.price, w.pair) : '—';
+    const isUp = md && md.change >= 0;
+    return `
+      <div class="wl-card ${w.loading?'analyzing':''}">
+        <button class="wl-analyze-btn" onclick="analyzeWatchlistPair(${i})">⚡ Analisa</button>
+        <div class="wl-pair">${w.pair}</div>
+        <div class="wl-signal ${w.signal.toLowerCase()}">${w.signal}</div>
+        <div class="wl-price">${priceStr} <span style="font-size:10px;color:${isUp?'var(--accent2)':'var(--danger)'}">${md?(isUp?'▲':'▼')+Math.abs(md.change).toFixed(2)+'%':''}</span></div>
+        <div class="wl-meta">${w.conf!=='—'?'Conf: '+w.conf+'%':''} ${w.entry!=='—'?'| Entry: '+w.entry:''}</div>
+        <div class="wl-loader ${w.loading?'show':''}" id="wl-loader-${i}">
+          <span style="animation:barPulse 1s infinite">ANALYZING...</span>
+        </div>
+        <button onclick="removeWatchlistPair(${i})" style="position:absolute;bottom:10px;right:10px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;width:auto;padding:2px 6px">✕</button>
+      </div>`;
+  }).join('');
+}
+
+function removeWatchlistPair(i) {
+  watchlist.splice(i, 1);
+  renderWatchlist();
+}
+
+async function analyzeWatchlistPair(i) {
+  if (!currentImageBase64) { showToast('⚠️ Upload chart di Analyzer terlebih dahulu!'); return; }
+  const w    = watchlist[i];
+  const pair = w.pair;
+  w.loading  = true;
+  renderWatchlist();
+
+  try {
+    const res = await fetch('/api/ai-proxy', {
+      method:'POST', headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:500,
+        messages:[{ role:'user', content:[
+          { type:'image', source:{ type:'base64', media_type:currentImageType, data:currentImageBase64 } },
+          { type:'text', text:`Analisa chart ini untuk ${pair}. Balas HANYA JSON: {"signal":"BUY"|"SELL"|"WAIT","confidence":<int>,"entry":"<val>","sl":"<val>","tp1":"<val>"}` }
+        ]}]
+      })
+    });
+    const data = await res.json();
+    const raw  = data.content.map(b=>b.text||'').join('');
+    const d    = parseResponse(raw);
+    w.signal = d.signal || 'WAIT';
+    w.conf   = d.confidence || '—';
+    w.entry  = d.entry || '—';
+    w.sl     = d.sl || '—';
+    w.tp1    = d.tp1 || '—';
+  } catch {
+    w.signal = 'ERR';
+  } finally {
+    w.loading = false;
+    renderWatchlist();
+  }
+}
+
+/* ═══════════════════════════════
+   LOGS
+═══════════════════════════════ */
+function saveLog(entry) {
+  const logs = getLogs();
+  logs.unshift({ ...entry, status:'ACTIVE' });
+  if (logs.length>50) logs.pop();
+  localStorage.setItem('trade_logs', JSON.stringify(logs));
+}
+function getLogs() { try { return JSON.parse(localStorage.getItem('trade_logs')||'[]'); } catch { return []; } }
+function clearLogs() {
+  if (!confirm('Hapus semua log?')) return;
+  localStorage.removeItem('trade_logs'); renderLogs(); showToast('🗑️ Log dihapus.');
+}
+function renderLogs() {
+  const logs = getLogs();
+  const c    = document.getElementById('logContainer');
+  if (!logs.length) { c.innerHTML = '<div class="log-empty">Belum ada log.</div>'; return; }
+  const sc   = { ACTIVE:'var(--accent)', TP1_HIT:'var(--accent2)', TP2_HIT:'var(--accent)', TP3_HIT:'#a78bfa', SL_HIT:'var(--danger)', CLOSED:'var(--muted)' };
+  c.innerHTML = logs.map(log => {
+    const d   = log.result || {};
+    const sig = d.signal || '—';
+    const col = sig==='BUY'?'var(--accent2)':sig==='SELL'?'var(--danger)':'var(--warn)';
+    const scc = sc[log.status] || 'var(--muted)';
+    const t   = log.time ? new Date(log.time).toLocaleString('id-ID') : '—';
+    const prev= (d.analysis||'').slice(0,110);
+    return `<div class="log-entry">
+      <div class="log-meta"><span>${log.pair} · ${log.tf}</span><span style="color:${scc};font-weight:700">${log.status||'ACTIVE'}</span><span>${t}</span></div>
+      <div class="log-signal" style="color:${col}">${sig} · Entry:${d.entry||'—'} · SL:${d.sl||'—'} · TP1:${d.tp1||'—'}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">${prev}${prev.length>=110?'…':''}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════
+   SETTINGS — ACCOUNT
+═══════════════════════════════ */
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type  = inp.type==='password'?'text':'password';
+  btn.textContent = inp.type==='password'?'👁️':'🙈';
+}
+function saveAccount() {
+  const email=document.getElementById('settingEmail').value.trim();
+  const pw=document.getElementById('settingPassword').value;
+  const bk=document.getElementById('settingBroker').value;
+  if (!email||!pw) { showToast('⚠️ Email & password wajib!'); return; }
+  localStorage.setItem('trade_email', email);
+  localStorage.setItem('trade_password', btoa(pw));
+  localStorage.setItem('trade_broker', bk);
+  setStatus('accountStatus', true); showToast('✅ Akun disimpan!');
+}
+function clearAccount() {
+  if (!confirm('Hapus data akun?')) return;
+  ['trade_email','trade_password','trade_broker'].forEach(k=>localStorage.removeItem(k));
+  ['settingEmail','settingPassword'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('settingBroker').value='';
+  setStatus('accountStatus', false); showToast('🗑️ Akun dihapus.');
+}
+function loadAccount() {
+  const e=localStorage.getItem('trade_email');
+  const p=localStorage.getItem('trade_password');
+  const b=localStorage.getItem('trade_broker');
+  if (e) document.getElementById('settingEmail').value=e;
+  if (p) document.getElementById('settingPassword').value=atob(p);
+  if (b) document.getElementById('settingBroker').value=b;
+  if (e||p) setStatus('accountStatus', true);
+}
+
+/* ═══════════════════════════════
+   SETTINGS — COOKIES
+═══════════════════════════════ */
+let cookieRows=[];
+function addCookieRow(k='',v='') { cookieRows.push({id:Date.now()+Math.random(),key:k,value:v}); renderCookies(); }
+function removeCookieRow(id) { cookieRows=cookieRows.filter(r=>r.id!==id); renderCookies(); }
+function renderCookies() {
+  const list=document.getElementById('cookieList'); list.innerHTML='';
+  cookieRows.forEach(row => {
+    const div=document.createElement('div'); div.className='cookie-row';
+    div.innerHTML=`<input type="text" placeholder="Key" value="${esc(row.key)}" onchange="updC(${row.id},'key',this.value)"><input type="text" placeholder="Value" value="${esc(row.value)}" onchange="updC(${row.id},'value',this.value)"><button class="cookie-del" onclick="removeCookieRow(${row.id})">✕</button>`;
+    list.appendChild(div);
+  });
+}
+function updC(id,f,v) { const r=cookieRows.find(r=>r.id===id); if(r) r[f]=v; }
+function esc(s) { return (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+function parseCookies() {
+  const raw=document.getElementById('rawCookie').value.trim();
+  if (!raw) { showToast('⚠️ Paste cookie dulu!'); return; }
+  cookieRows=[];
+  raw.split(';').map(s=>s.trim()).filter(Boolean).forEach(p=>{
+    const i=p.indexOf('='); if(i<0) return;
+    cookieRows.push({id:Date.now()+Math.random(),key:p.slice(0,i).trim(),value:p.slice(i+1).trim()});
+  });
+  renderCookies(); showToast(`✅ ${cookieRows.length} cookies diparsing!`);
+}
+function saveCookies() {
+  document.querySelectorAll('#cookieList .cookie-row').forEach((row,i)=>{
+    const inp=row.querySelectorAll('input');
+    if(cookieRows[i]){cookieRows[i].key=inp[0].value;cookieRows[i].value=inp[1].value;}
+  });
+  const valid=cookieRows.filter(r=>r.key.trim());
+  localStorage.setItem('trade_cookies',JSON.stringify(valid));
+  setStatus('cookieStatus',true); showToast(`💾 ${valid.length} cookies disimpan!`);
+}
+function clearCookies() {
+  if(!confirm('Hapus semua cookies?')) return;
+  localStorage.removeItem('trade_cookies'); cookieRows=[]; renderCookies();
+  document.getElementById('rawCookie').value='';
+  setStatus('cookieStatus',false); showToast('🗑️ Cookies dihapus.');
+}
+function loadCookies() {
+  try {
+    const data=JSON.parse(localStorage.getItem('trade_cookies')||'[]');
+    cookieRows=data.map(r=>({...r,id:Date.now()+Math.random()}));
+    renderCookies(); if(cookieRows.length) setStatus('cookieStatus',true);
+  } catch {}
+}
+
+/* ═══════════════════════════════
+   HELPERS
+═══════════════════════════════ */
+function setStatus(id,saved) {
+  const el=document.getElementById(id);
+  el.className='status-badge '+(saved?'saved':'unsaved');
+  el.innerHTML=`<span class="dot"></span>${saved?'Tersimpan':'Belum disimpan'}`;
+}
+function showError(msg) { const el=document.getElementById('errorBox'); el.textContent=msg; el.style.display='block'; }
+let toastTimer;
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ═══════════════════════════════
+   API KEY MANAGEMENT
+═══════════════════════════════ */
+function getApiKey() {
+  return localStorage.getItem('nathanz_api_key') || '';
+}
+
+function saveApiKey() {
+  const key = document.getElementById('anthropicApiKey').value.trim();
+  if (!key || !key.startsWith('sk-')) {
+    showToast('⚠️ API key tidak valid! Harus diawali sk-ant-...');
+    return;
+  }
+  localStorage.setItem('nathanz_api_key', key);
+  setStatus('apiKeyStatus', true);
+  showToast('✅ API key disimpan! Fitur AI siap digunakan.');
+}
+
+function clearApiKey() {
+  if (!confirm('Hapus API key?')) return;
+  localStorage.removeItem('nathanz_api_key');
+  document.getElementById('anthropicApiKey').value = '';
+  setStatus('apiKeyStatus', false);
+  showToast('🗑️ API key dihapus.');
+}
+
+function loadApiKey() {
+  const key = getApiKey();
+  if (key) {
+    document.getElementById('anthropicApiKey').value = key;
+    setStatus('apiKeyStatus', true);
+  }
+}
+
+function checkApiKey() {
+  // API key now handled server-side via Netlify Function
+  // No client-side check needed
+  return true;
+}
+
+/* ═══════════════════════════════
+   AI CHAT
+═══════════════════════════════ */
+let chatHistory  = [];   // [{role, content}]
+let chatTyping   = false;
+let chatUnread   = 0;
+
+const CHAT_SYSTEM = `Kamu adalah NATHANZ AI TRADE Assistant — asisten trading profesional yang dibuat khusus untuk platform NATHANZ AI TRADE.
+
+Kepribadianmu:
+- Ahli trading forex, emas (XAUUSD), cryptocurrency, dan indeks saham
+- Menguasai analisa teknikal: Smart Money Concept (SMC), Supply & Demand, Price Action, Candlestick Pattern, Fibonacci, Support/Resistance, EMA, RSI, MACD, Bollinger Bands
+- Bisa memberikan sinyal trading, analisa pair, cara entry/exit, manajemen risiko
+- Berbicara dalam Bahasa Indonesia yang ramah, jelas, dan profesional
+- Selalu sertakan disclaimer bahwa trading memiliki risiko
+
+Kapabilitasmu:
+- Analisa pair forex/crypto/emas berdasarkan kondisi market
+- Jelaskan strategi scalping, swing trading, day trading
+- Bantu hitung risk management (lot size, SL, TP, RR ratio)
+- Edukasi trading dari dasar sampai advanced
+- Jawab pertanyaan tentang platform MetaTrader 4/5
+
+Format jawaban:
+- Gunakan emoji secukupnya agar mudah dibaca
+- Untuk sinyal, format: Signal / Entry / SL / TP1 / TP2 / RR
+- Untuk penjelasan panjang, gunakan poin-poin
+- Selalu profesional namun bersahabat
+
+Pemilik platform ini adalah NATHANZ — trader profesional.`;
+
+function showWelcomeMsg() {
+  const welcome = `👋 Halo! Saya **NATHANZ AI TRADE Assistant**.
+
+Saya siap membantu kamu dalam:
+- 📊 **Analisa & signal** forex, emas, crypto, indeks
+- 📚 **Edukasi trading** dari dasar sampai advanced  
+- ⚡ **Strategi entry/exit** yang tepat
+- 💰 **Manajemen risiko** & kalkulasi lot size
+- 🧠 **Smart Money Concept**, Price Action, dan lainnya
+
+Silakan tanya apapun tentang trading! 🚀`;
+  appendAIMessage(welcome);
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+}
+
+function autoResizeChat(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const msg   = input.value.trim();
+  if (!msg || chatTyping) return;
+  if (!checkApiKey()) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Hide quick prompts after first message
+  const qk = document.getElementById('chatQuick');
+  if (qk) qk.style.display = 'none';
+
+  // Show user message
+  appendUserMessage(msg);
+
+  // Add to history
+  chatHistory.push({ role: 'user', content: msg });
+
+  // Show typing
+  chatTyping = true;
+  const btn  = document.getElementById('chatSendBtn');
+  const icon = document.getElementById('chatSendIcon');
+  btn.disabled = true;
+  icon.textContent = '⏳';
+  const typingEl = showTyping();
+
+  try {
+    const res = await fetch('/api/ai-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: CHAT_SYSTEM,
+        messages: chatHistory.slice(-20) // keep last 20 turns for context
+      })
+    });
+
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e?.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data   = await res.json();
+    const reply  = data.content.map(b => b.text || '').join('').trim();
+
+    // Add AI response to history
+    chatHistory.push({ role: 'assistant', content: reply });
+
+    removeTyping(typingEl);
+    appendAIMessage(reply);
+
+  } catch (err) {
+    removeTyping(typingEl);
+    appendAIMessage(`❌ Gagal terhubung ke AI: ${err.message}\n\nCoba lagi beberapa saat.`);
+  } finally {
+    chatTyping   = false;
+    btn.disabled = false;
+    icon.textContent = '➤';
+    input.focus();
+  }
+}
+
+function sendQuick(text) {
+  const input = document.getElementById('chatInput');
+  input.value = text;
+  sendChatMessage();
+}
+
+function appendUserMessage(text) {
+  const container = document.getElementById('chatMessages');
+  const time = new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+  const div  = document.createElement('div');
+  div.className = 'chat-msg user';
+  div.innerHTML = `
+    <div>
+      <div class="chat-bubble">${escapeHtml(text)}</div>
+      <div class="chat-time">${time}</div>
+    </div>
+    <div class="chat-msg-avatar">👤</div>
+  `;
+  container.appendChild(div);
+  scrollChat();
+}
+
+function appendAIMessage(text) {
+  const container = document.getElementById('chatMessages');
+  const time = new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+  const div  = document.createElement('div');
+  div.className = 'chat-msg ai';
+
+  // Convert markdown-like formatting
+  const formatted = formatChatText(text);
+
+  div.innerHTML = `
+    <div class="chat-msg-avatar">🤖</div>
+    <div>
+      <div class="chat-bubble">${formatted}</div>
+      <div class="chat-time">NATHANZ AI · ${time}</div>
+    </div>
+  `;
+  container.appendChild(div);
+  scrollChat();
+
+  // Badge if not on chat page
+  const chatPage = document.getElementById('page-chat');
+  if (!chatPage.classList.contains('active')) {
+    chatUnread++;
+    const badge = document.getElementById('floatChatBadge');
+    if (badge) { badge.style.display = 'flex'; badge.textContent = chatUnread; }
+  }
+}
+
+function showTyping() {
+  const container = document.getElementById('chatMessages');
+  const div       = document.createElement('div');
+  div.className   = 'chat-msg ai';
+  div.id          = 'typingIndicator';
+  div.innerHTML   = `
+    <div class="chat-msg-avatar">🤖</div>
+    <div class="typing-bubble"><span></span><span></span><span></span></div>
+  `;
+  container.appendChild(div);
+  scrollChat();
+  return div;
+}
+
+function removeTyping(el) { if (el && el.parentNode) el.remove(); }
+
+function scrollChat() {
+  const c = document.getElementById('chatMessages');
+  if (c) c.scrollTop = c.scrollHeight;
+}
+
+function clearChat() {
+  chatHistory = [];
+  const c = document.getElementById('chatMessages');
+  if (c) c.innerHTML = '';
+  const qk = document.getElementById('chatQuick');
+  if (qk) qk.style.display = 'flex';
+  showWelcomeMsg();
+}
+
+function hideChatBadge() {
+  chatUnread = 0;
+  const badge = document.getElementById('floatChatBadge');
+  if (badge) badge.style.display = 'none';
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatChatText(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    // Bold **text**
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Italic *text*
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Code `text`
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    // Bullet points
+    .replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>(\n|$))+/g, m => '<ul>' + m + '</ul>')
+    // Numbered list
+    .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
+    // Line breaks
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+/* ═══════════════════════════════
+   INIT
+═══════════════════════════════ */
+loadAccount();
+loadCookies();
+loadApiKey();
+initMarketData();
+// Show API key banner on home if not set
+setTimeout(() => {
+  const banner = document.getElementById('apiKeyBanner');
+  if (banner && !getApiKey()) banner.style.display = 'block';
+}, 300);
+// Start price update loop globally (for signal card live price)
+setInterval(() => { updateAllPrices(); }, 8000);
+// Init watchlist placeholder
+renderWatchlist();
+
+
+</script>
+</body>
+</html>
