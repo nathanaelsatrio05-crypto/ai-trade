@@ -1,0 +1,2 @@
+# ai-trade
+new repo
