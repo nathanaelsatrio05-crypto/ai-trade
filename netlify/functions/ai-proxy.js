@@ -12,7 +12,7 @@ exports.handler=async(e)=>{
       if(Array.isArray(m.content)&&m.content.some(x=>x.type==='image'))t='[Chart diupload]\n'+t;
       if(t.trim())msgs.push({role:m.role,content:t});
     }
-    const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'llama3-70b-8192',max_tokens:b.max_tokens||1000,temperature:0.7,messages:msgs})});
+    const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:b.max_tokens||1000,temperature:0.7,messages:msgs})});
     const d=await r.json();
     if(!r.ok)return{statusCode:r.status,headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({error:{message:d?.error?.message||'Groq error'}})};
     return{statusCode:200,headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({content:[{type:'text',text:d?.choices?.[0]?.message?.content||''}]})};
