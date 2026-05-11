@@ -795,6 +795,69 @@
       display: none; align-items: center; justify-content: center;
     }
 
+
+    /* ── SIGNALS PAGE ── */
+    .signals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 16px; }
+    .sig-card {
+      background: linear-gradient(160deg, #0d1f35, #091525);
+      border: 1px solid var(--border); border-radius: 18px;
+      overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .sig-card:hover { transform: translateY(-3px); }
+    .sig-card.buy-card  { border-color: rgba(0,255,157,0.3); }
+    .sig-card.sell-card { border-color: rgba(255,77,109,0.3); }
+    .sig-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 8px; }
+    .sig-pair-label { font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:2px; }
+    .sig-time { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); }
+    .sig-direction { display:flex; align-items:center; gap:10px; padding:0 16px 12px; }
+    .sig-dir-text { font-family:'Space Mono',monospace; font-size:40px; font-weight:700; line-height:1; }
+    .sig-dir-text.buy  { color:#00ff9d; text-shadow:0 0 24px rgba(0,255,157,0.4); }
+    .sig-dir-text.sell { color:#ff4d6d; text-shadow:0 0 24px rgba(255,77,109,0.4); }
+    .sig-dir-text.wait { color:#ffb800; }
+    .sig-badge { font-family:'Space Mono',monospace; font-size:11px; padding:4px 10px; border-radius:16px; letter-spacing:1px; }
+    .sig-badge.buy  { background:rgba(0,255,157,0.1); color:#00ff9d; border:1px solid rgba(0,255,157,0.3); }
+    .sig-badge.sell { background:rgba(255,77,109,0.1); color:#ff4d6d; border:1px solid rgba(255,77,109,0.3); }
+    .sig-conf { margin:0 14px 12px; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+    .sig-conf-label { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1px; margin-bottom:6px; }
+    .sig-conf-val { font-family:'Space Mono',monospace; font-size:24px; font-weight:700; color:var(--text); margin-bottom:8px; }
+    .sig-conf-bar { height:6px; border-radius:4px; background:rgba(255,255,255,0.07); overflow:hidden; }
+    .sig-conf-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,#00ff9d,#00d4ff); transition:width 1.2s ease; }
+    .sig-price-section { margin:0 14px 12px; background:linear-gradient(135deg,rgba(0,255,157,0.07),rgba(0,212,255,0.03)); border:1px solid rgba(0,255,157,0.15); border-radius:10px; padding:12px 14px; }
+    .sig-price-label { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1px; margin-bottom:4px; }
+    .sig-price-val { font-family:'Space Mono',monospace; font-size:26px; font-weight:700; color:var(--text); }
+    .sig-live-chg { font-size:11px; font-family:'Space Mono',monospace; margin-top:2px; }
+    .sig-live-chg.up { color:var(--accent2); }
+    .sig-live-chg.dn { color:var(--danger); }
+    .sig-levels { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 14px 12px; }
+    .sig-level { background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:9px; padding:10px 12px; }
+    .sig-level.sl  { border-color:rgba(255,77,109,0.25); background:rgba(255,77,109,0.04); }
+    .sig-level.tp1 { border-color:rgba(0,255,157,0.15); }
+    .sig-level.tp2 { border-color:rgba(0,212,255,0.15); }
+    .sig-level.tp3 { border-color:rgba(167,139,250,0.15); }
+    .sig-level-lbl { font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+    .sig-level-val { font-family:'Space Mono',monospace; font-size:16px; font-weight:700; }
+    .sig-level.sl  .sig-level-val { color:#ff4d6d; }
+    .sig-level.tp1 .sig-level-val { color:#00ff9d; }
+    .sig-level.tp2 .sig-level-val { color:#00d4ff; }
+    .sig-level.tp3 .sig-level-val { color:#a78bfa; }
+    .sig-analysis { margin:0 14px 14px; font-size:12px; color:var(--muted); line-height:1.65; border-left:2px solid var(--accent); padding-left:10px; }
+    .sig-status-row { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid var(--border); background:rgba(0,0,0,0.15); }
+    .sig-status-txt { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); }
+    .sig-rr { font-family:'Space Mono',monospace; font-size:11px; color:var(--accent2); }
+    .sig-loading { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; gap:12px; }
+    .sig-loading-text { font-family:'Space Mono',monospace; font-size:11px; color:var(--accent); letter-spacing:1px; }
+    .sig-controls { display:flex; align-items:center; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+    .sig-refresh-btn { display:flex; align-items:center; gap:6px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:1px; padding:8px 16px; border-radius:10px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; color:#000; font-weight:700; cursor:pointer; transition:opacity 0.2s; width:auto; }
+    .sig-refresh-btn:hover { opacity:0.85; }
+    .sig-refresh-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .sig-auto-btn { font-family:'Space Mono',monospace; font-size:11px; padding:8px 14px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; transition:all 0.2s; width:auto; }
+    .sig-auto-btn.on { border-color:var(--accent2); color:var(--accent2); background:rgba(0,255,157,0.08); }
+    .sig-last-update { font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); margin-left:auto; }
+    .sig-pair-toggle { font-family:'Space Mono',monospace; font-size:10px; padding:5px 10px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; transition:all 0.2s; width:auto; letter-spacing:1px; }
+    .sig-pair-toggle:hover { border-color:var(--accent); color:var(--accent); }
+    .sig-pair-toggle.active-sig { border-color:var(--accent2); color:var(--accent2); background:rgba(0,255,157,0.08); }
+
     /* ── PRINT / PDF ── */
     @media print {
       .sidebar, .card:not(#printCard), #notifPanel, #toast, .sc-toolbar, .sc-status-controls, .sc-update-btn { display: none !important; }
@@ -820,6 +883,7 @@
   <nav class="menu">
     <div class="menu-item" onclick="showPage('home')"><span>🏠</span> Home</div>
     <div class="menu-item active" onclick="showPage('analyzer')"><span>📊</span> Analyzer</div>
+    <div class="menu-item" onclick="showPage('signals')"><span>📡</span> Signals</div>
     <div class="menu-item" onclick="showPage('market')"><span>📈</span> Market</div>
     <div class="menu-item" onclick="showPage('chat')"><span>💬</span> AI Chat</div>
     <div class="menu-item" onclick="showPage('logs')"><span>🧠</span> AI Logs</div>
@@ -918,6 +982,15 @@
               <option value="reversal">Reversal</option>
               <option value="breakout">Breakout</option>
             </select>
+          </div>
+
+          <div class="form-group">
+            <label>Harga Saat Ini <span style="color:var(--accent2);font-size:10px">(wajib isi untuk akurasi)</span></label>
+            <div style="position:relative">
+              <input type="text" id="currentPrice" placeholder="cth: 3285.50" style="padding-right:80px">
+              <button onclick="autoFillPrice()" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:auto;padding:4px 10px;font-size:10px;background:rgba(0,212,255,0.15);border:1px solid var(--accent);border-radius:6px;color:var(--accent);cursor:pointer;font-family:'Space Mono',monospace">AUTO</button>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px">Ambil dari chart TradingView kamu (pojok kiri atas)</div>
           </div>
 
           <div class="form-group">
@@ -1079,6 +1152,33 @@
         </div>
       </div>
   
+  <!-- SIGNALS PAGE -->
+  <div class="page" id="page-signals">
+    <div class="page-header">
+      <div class="page-title">📡 SIGNALS</div>
+      <div class="page-sub">Sinyal AI real-time — digenerate otomatis berdasarkan harga terkini</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="sig-controls">
+      <button class="sig-refresh-btn" id="sigRefreshBtn" onclick="generateAllSignals()">⚡ Generate Semua Sinyal</button>
+      <button class="sig-auto-btn" id="sigAutoBtn" onclick="toggleSigAuto()">⏱ Auto: OFF</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="toggleSigPair('XAUUSD')" class="sig-pair-toggle active-sig" data-pair="XAUUSD">XAUUSD</button>
+        <button onclick="toggleSigPair('EURUSD')" class="sig-pair-toggle active-sig" data-pair="EURUSD">EURUSD</button>
+        <button onclick="toggleSigPair('GBPUSD')" class="sig-pair-toggle active-sig" data-pair="GBPUSD">GBPUSD</button>
+        <button onclick="toggleSigPair('USDJPY')" class="sig-pair-toggle active-sig" data-pair="USDJPY">USDJPY</button>
+        <button onclick="toggleSigPair('BTCUSD')" class="sig-pair-toggle active-sig" data-pair="BTCUSD">BTCUSD</button>
+        <button onclick="toggleSigPair('ETHUSD')" class="sig-pair-toggle active-sig" data-pair="ETHUSD">ETHUSD</button>
+      </div>
+      <div class="sig-last-update" id="sigLastUpdate">Belum digenerate</div>
+    </div>
+
+    <div class="signals-grid" id="signalsGrid">
+      <!-- Cards rendered by JS -->
+    </div>
+  </div>
+
   <!-- MARKET PAGE -->
   <div class="page" id="page-market">
     <div class="page-header">
@@ -1377,15 +1477,16 @@ function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  ['home','analyzer','market','chat','logs','settings'].forEach((l, i) => {
+  ['home','analyzer','signals','market','chat','logs','settings'].forEach((l, i) => {
     if (l === name) document.querySelectorAll('.menu-item')[i].classList.add('active');
   });
   if (name === 'home') {
     const banner = document.getElementById('apiKeyBanner');
     if (banner) banner.style.display = getApiKey() ? 'none' : 'block';
   }
-  if (name === 'market') { initMarket(); setTimeout(() => loadTVChart('XAUUSD'), 400); }
-  if (name === 'chat')   { hideChatBadge(); if (!chatHistory.length) showWelcomeMsg(); }
+  if (name === 'market')  { initMarket(); setTimeout(() => loadTVChart('XAUUSD'), 400); }
+  if (name === 'chat')    { hideChatBadge(); if (!chatHistory.length) showWelcomeMsg(); }
+  if (name === 'signals') { if (!Object.keys(sigData).length) renderSigPlaceholders(); }
 }
 
 /* ═══════════════════════════════
@@ -1484,7 +1585,19 @@ async function runAnalysis() {
   }
 }
 
-/* ── PROMPT ── */
+/* ── AUTO FILL PRICE ── */
+function autoFillPrice() {
+  const pair = document.getElementById('pair').value;
+  const md   = marketData[pair];
+  if (md) {
+    document.getElementById('currentPrice').value = formatPrice(md.price, pair);
+    showToast('✅ Harga auto-filled dari data market!');
+  } else {
+    showToast('⚠️ Data market belum tersedia. Isi manual dari TradingView.');
+  }
+}
+
+/* ── PROMPT BUILDER ── */
 function buildPrompt(pair, tf, risk, strategy) {
   const sDesc = {
     general:'Smart Money Concepts: order blocks, liquidity, BOS/CHOCH',
@@ -1495,12 +1608,19 @@ function buildPrompt(pair, tf, risk, strategy) {
     breakout:'Breakout: entry saat tembus level kunci'
   }[strategy] || 'General technical analysis';
 
+  const currentPrice = document.getElementById('currentPrice')?.value?.trim() || '';
+  const priceContext = currentPrice
+    ? `\nHARGA SAAT INI: ${currentPrice} (GUNAKAN HARGA INI sebagai referensi untuk semua level entry/SL/TP)`
+    : '\nCatatan: harga tidak diinput — estimasikan dari chart yang terlihat.';
+
   return `Kamu adalah analis trading profesional. Analisa chart ini untuk instrument ${pair} pada timeframe ${tf}.
-Strategi: ${sDesc}. Risk per trade: ${risk}%
-Lihat chart dengan teliti. Identifikasi tren, support/resistance, pola candlestick, dan momentum.
-Untuk level harga: berikan estimasi angka berdasarkan apa yang terlihat di chart.
+Strategi: ${sDesc}. Risk per trade: ${risk}%.${priceContext}
+
+PENTING: Berikan level harga yang SPESIFIK dan REALISTIS berdasarkan harga saat ini di atas.
+Jangan menggunakan harga yang jauh berbeda dari harga referensi.
+
 Balas HANYA JSON valid ini tanpa teks lain:
-{"signal":"BUY"|"SELL"|"WAIT","confidence":<int 0-100>,"trend":"Bullish"|"Bearish"|"Sideways","entry":"<harga/zona>","sl":"<harga/zona SL>","tp1":"<TP konservatif>","tp2":"<TP moderat>","tp3":"<TP agresif>","rr":"<misal 1:2.5>","patterns":["<pola>"],"analysis":"<analisa 3-4 kalimat bahasa Indonesia>"}`;
+{"signal":"BUY"|"SELL"|"WAIT","confidence":<int 0-100>,"trend":"Bullish"|"Bearish"|"Sideways","entry":"<harga spesifik>","sl":"<harga spesifik>","tp1":"<harga spesifik>","tp2":"<harga spesifik>","tp3":"<harga spesifik>","rr":"<misal 1:2.5>","patterns":["<pola>"],"analysis":"<analisa 3-4 kalimat bahasa Indonesia>"}`;
 }
 
 /* ── PARSE ── */
@@ -2466,6 +2586,282 @@ function formatChatText(text) {
 }
 
 /* ═══════════════════════════════
+   SIGNALS PAGE
+═══════════════════════════════ */
+let sigData       = {};   // { XAUUSD: { signal, conf, entry, sl, tp1, tp2, tp3, rr, analysis, time } }
+let sigActivePairs= ['XAUUSD','EURUSD','GBPUSD','USDJPY','BTCUSD','ETHUSD'];
+let sigAutoOn     = false;
+let sigAutoIv     = null;
+
+const SIG_PAIR_CONFIGS = {
+  XAUUSD: { digits:3, pip:0.1,  slPips:150, tp1:200, tp2:350, tp3:500 },
+  EURUSD: { digits:5, pip:0.0001, slPips:30, tp1:50, tp2:80, tp3:120 },
+  GBPUSD: { digits:5, pip:0.0001, slPips:40, tp1:60, tp2:100, tp3:150 },
+  USDJPY: { digits:3, pip:0.01, slPips:30, tp1:50, tp2:80, tp3:120 },
+  BTCUSD: { digits:0, pip:1, slPips:300, tp1:500, tp2:800, tp3:1200 },
+  ETHUSD: { digits:2, pip:0.1, slPips:50, tp1:80, tp2:130, tp3:200 },
+};
+
+function renderSigPlaceholders() {
+  const grid = document.getElementById('signalsGrid');
+  if (!grid) return;
+  grid.innerHTML = sigActivePairs.map(pair => `
+    <div class="sig-card" id="sigcard-${pair}">
+      <div class="sig-header">
+        <div class="sig-pair-label">${pair} SIGNAL</div>
+        <div class="sig-time">—</div>
+      </div>
+      <div class="sig-loading">
+        <div class="loader-bars" style="height:28px">
+          <span style="height:10px"></span><span style="height:16px"></span>
+          <span style="height:24px"></span><span style="height:16px"></span>
+          <span style="height:10px"></span>
+        </div>
+        <div class="sig-loading-text">KLIK GENERATE</div>
+      </div>
+    </div>`).join('');
+}
+
+async function generateAllSignals() {
+  const btn = document.getElementById('sigRefreshBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+
+  // Show loading state on all cards
+  sigActivePairs.forEach(pair => showSigLoading(pair));
+
+  // Generate in parallel
+  await Promise.all(sigActivePairs.map(pair => generateSignalForPair(pair)));
+
+  document.getElementById('sigLastUpdate').textContent =
+    'Update: ' + new Date().toLocaleTimeString('id-ID');
+
+  btn.disabled = false;
+  btn.textContent = '⚡ Generate Semua Sinyal';
+  showToast('✅ Semua sinyal berhasil digenerate!');
+}
+
+function showSigLoading(pair) {
+  const card = document.getElementById('sigcard-' + pair);
+  if (!card) return;
+  card.innerHTML = `
+    <div class="sig-header">
+      <div class="sig-pair-label">${pair} SIGNAL</div>
+      <div class="sig-time">Generating...</div>
+    </div>
+    <div class="sig-loading">
+      <div class="loader-bars" style="height:28px">
+        <span style="height:10px"></span><span style="height:16px"></span>
+        <span style="height:24px"></span><span style="height:16px"></span>
+        <span style="height:10px"></span>
+      </div>
+      <div class="sig-loading-text">AI MENGANALISA ${pair}...</div>
+    </div>`;
+}
+
+async function generateSignalForPair(pair) {
+  const md     = marketData[pair];
+  const price  = md ? formatPrice(md.price, pair) : '—';
+  const change = md ? (md.change >= 0 ? '+' : '') + md.change.toFixed(2) + '%' : '';
+  const cfg    = SIG_PAIR_CONFIGS[pair] || SIG_PAIR_CONFIGS['EURUSD'];
+  const now    = new Date();
+  const hour   = now.getHours();
+  const session= hour >= 8 && hour < 16 ? 'London' : hour >= 13 && hour < 22 ? 'New York' : 'Asia';
+
+  const prompt = `Kamu adalah analis trading profesional spesialis ${pair}.
+
+Data saat ini:
+- Pair: ${pair}
+- Harga terkini: ${price}
+- Perubahan 24H: ${change}
+- Sesi trading aktif: ${session} Session
+- Waktu: ${now.toLocaleTimeString('id-ID')}
+
+Berikan sinyal trading SEKARANG dengan level harga yang SPESIFIK dan REALISTIS berdasarkan harga ${price}.
+
+Aturan kalkulasi level:
+- Jika BUY:  Entry ≈ harga saat ini, SL = entry - ${cfg.slPips * cfg.pip}, TP1 = entry + ${cfg.tp1 * cfg.pip}, TP2 = entry + ${cfg.tp2 * cfg.pip}, TP3 = entry + ${cfg.tp3 * cfg.pip}
+- Jika SELL: Entry ≈ harga saat ini, SL = entry + ${cfg.slPips * cfg.pip}, TP1 = entry - ${cfg.tp1 * cfg.pip}, TP2 = entry - ${cfg.tp2 * cfg.pip}, TP3 = entry - ${cfg.tp3 * cfg.pip}
+- Sesuaikan berdasarkan struktur market dan analisa teknikal
+
+Balas HANYA JSON valid, tanpa teks lain:
+{"signal":"BUY"|"SELL"|"WAIT","confidence":<int 60-95>,"trend":"Bullish"|"Bearish"|"Sideways","entry":"<angka spesifik>","sl":"<angka spesifik>","tp1":"<angka spesifik>","tp2":"<angka spesifik>","tp3":"<angka spesifik>","rr":"<misal 1:2.5>","patterns":["<pola>"],"analysis":"<analisa 2-3 kalimat bahasa Indonesia berdasarkan sesi ${session} dan kondisi teknikal>"}`;
+
+  try {
+    const res = await fetch('/api/ai-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        max_tokens: 500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || 'Error');
+
+    const raw  = data.content?.[0]?.text || '';
+    const json = raw.replace(/```json|```/g, '').trim().match(/\{[\s\S]*\}/)?.[0];
+    const d    = json ? JSON.parse(json) : null;
+    if (!d) throw new Error('Parse error');
+
+    sigData[pair] = { ...d, price, change, time: new Date().toLocaleTimeString('id-ID') };
+    renderSigCard(pair);
+
+  } catch (err) {
+    // Show error card
+    const card = document.getElementById('sigcard-' + pair);
+    if (card) card.innerHTML = `
+      <div class="sig-header">
+        <div class="sig-pair-label">${pair} SIGNAL</div>
+        <div class="sig-time">Error</div>
+      </div>
+      <div class="sig-loading">
+        <div style="color:var(--danger);font-size:12px;text-align:center">❌ ${err.message}<br><br>
+        <button onclick="generateSignalForPair('${pair}')" style="background:rgba(255,77,109,0.1);border:1px solid var(--danger);color:var(--danger);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:11px;width:auto">Coba Lagi</button></div>
+      </div>`;
+  }
+}
+
+function renderSigCard(pair) {
+  const d    = sigData[pair];
+  if (!d) return;
+  const card = document.getElementById('sigcard-' + pair);
+  if (!card) return;
+
+  const sig  = d.signal || 'WAIT';
+  const conf = Math.max(0, Math.min(100, parseInt(d.confidence) || 70));
+  const isUp = d.change && !d.change.startsWith('-');
+  const md   = marketData[pair];
+  const livePrice = md ? formatPrice(md.price, pair) : d.price;
+  const liveChg   = md ? ((md.change >= 0 ? '+' : '') + md.change.toFixed(2) + '%') : d.change;
+
+  card.className = `sig-card ${sig === 'BUY' ? 'buy-card' : sig === 'SELL' ? 'sell-card' : ''}`;
+  card.innerHTML = `
+    <!-- Header -->
+    <div class="sig-header">
+      <div class="sig-pair-label">${pair} SIGNAL</div>
+      <div class="sig-time">${d.time || '—'}</div>
+    </div>
+
+    <!-- Direction -->
+    <div class="sig-direction">
+      <div class="sig-dir-text ${sig.toLowerCase()}">${sig}</div>
+      <div>
+        <div class="sig-badge ${sig.toLowerCase()}">${pair}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;font-family:'Space Mono',monospace">${d.trend || ''}</div>
+      </div>
+    </div>
+
+    <!-- Confidence -->
+    <div class="sig-conf">
+      <div class="sig-conf-label">AI CONFIDENCE</div>
+      <div class="sig-conf-val">${conf}%</div>
+      <div class="sig-conf-bar"><div class="sig-conf-fill" style="width:0%" id="sigfill-${pair}"></div></div>
+    </div>
+
+    <!-- Live Price -->
+    <div class="sig-price-section">
+      <div class="sig-price-label">ENTRY PRICE</div>
+      <div class="sig-price-val">${d.entry || '—'}</div>
+      <div class="sig-live-chg ${md && md.change >= 0 ? 'up' : 'dn'}">
+        Live: ${livePrice} &nbsp;${liveChg}
+      </div>
+    </div>
+
+    <!-- SL / TP Levels -->
+    <div class="sig-levels">
+      <div class="sig-level sl">
+        <div class="sig-level-lbl">Stop Loss</div>
+        <div class="sig-level-val">${d.sl || '—'}</div>
+      </div>
+      <div class="sig-level tp1">
+        <div class="sig-level-lbl">TP 1</div>
+        <div class="sig-level-val">${d.tp1 || '—'}</div>
+      </div>
+      <div class="sig-level tp2">
+        <div class="sig-level-lbl">TP 2</div>
+        <div class="sig-level-val">${d.tp2 || '—'}</div>
+      </div>
+      <div class="sig-level tp3">
+        <div class="sig-level-lbl">TP 3</div>
+        <div class="sig-level-val">${d.tp3 || '—'}</div>
+      </div>
+    </div>
+
+    <!-- Patterns -->
+    ${Array.isArray(d.patterns) && d.patterns.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin:0 14px 10px">
+           ${d.patterns.filter(Boolean).map(p => `<span class="sc-pattern-tag">${p}</span>`).join('')}
+         </div>` : ''}
+
+    <!-- Analysis -->
+    <div class="sig-analysis">${d.analysis || '—'}</div>
+
+    <!-- Status row -->
+    <div class="sig-status-row">
+      <div class="sig-status-txt">🟢 ACTIVE &nbsp;·&nbsp; ${new Date().toLocaleDateString('id-ID')}</div>
+      <div class="sig-rr">RR ${d.rr || '—'}</div>
+    </div>
+    <div style="padding:8px 14px;display:flex;gap:6px;flex-wrap:wrap;background:rgba(0,0,0,0.1)">
+      <button onclick="generateSignalForPair('${pair}')" class="sc-tool-btn">↻ Refresh</button>
+      <button onclick="sendToAnalyzer('${pair}')" class="sc-tool-btn">📊 Analisa Lebih</button>
+    </div>`;
+
+  // Animate confidence fill
+  setTimeout(() => {
+    const fill = document.getElementById('sigfill-' + pair);
+    if (fill) fill.style.width = conf + '%';
+  }, 100);
+}
+
+function sendToAnalyzer(pair) {
+  document.getElementById('pair').value = pair;
+  autoFillPrice();
+  showPage('analyzer');
+  showToast(`📊 Pair set ke ${pair} di Analyzer`);
+}
+
+function toggleSigPair(pair) {
+  const idx = sigActivePairs.indexOf(pair);
+  const btn = document.querySelector(`.sig-pair-toggle[data-pair="${pair}"]`);
+  if (idx === -1) {
+    sigActivePairs.push(pair);
+    if (btn) btn.classList.add('active-sig');
+  } else {
+    if (sigActivePairs.length <= 1) { showToast('⚠️ Minimal 1 pair aktif!'); return; }
+    sigActivePairs.splice(idx, 1);
+    if (btn) btn.classList.remove('active-sig');
+  }
+  renderSigPlaceholders();
+}
+
+function toggleSigAuto() {
+  sigAutoOn = !sigAutoOn;
+  const btn = document.getElementById('sigAutoBtn');
+  if (sigAutoOn) {
+    btn.textContent = '⏱ Auto: ON (15m)';
+    btn.classList.add('on');
+    generateAllSignals();
+    sigAutoIv = setInterval(generateAllSignals, 15 * 60 * 1000);
+    showToast('⏱ Auto generate aktif setiap 15 menit');
+  } else {
+    btn.textContent = '⏱ Auto: OFF';
+    btn.classList.remove('on');
+    clearInterval(sigAutoIv);
+    showToast('⏱ Auto generate dimatikan');
+  }
+}
+
+// Update sig card live prices every 8s
+setInterval(() => {
+  sigActivePairs.forEach(pair => {
+    if (sigData[pair]) renderSigCard(pair);
+  });
+}, 8000);
+
+/* ═══════════════════════════════
    INIT
 ═══════════════════════════════ */
 loadAccount();
@@ -2477,6 +2873,11 @@ setTimeout(() => {
   const banner = document.getElementById('apiKeyBanner');
   if (banner && !getApiKey()) banner.style.display = 'block';
 }, 300);
+// Start price update loop
+setInterval(() => { updateAllPrices(); }, 8000);
+// Init watchlist & signals
+renderWatchlist();
+renderSigPlaceholders();
 // Start price update loop globally (for signal card live price)
 setInterval(() => { updateAllPrices(); }, 8000);
 // Init watchlist placeholder
